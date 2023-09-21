@@ -6,12 +6,14 @@ import { AppComponent } from './app.component';
 import { QuizDataEditComponent } from './components/quiz-data-edit/quiz-data-edit.component';
 import { QuizCreateComponent } from './components/quiz-create/quiz-create.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { DashboardComponent } from './components/dashboard/dashboard.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     QuizDataEditComponent,
-    QuizCreateComponent
+    QuizCreateComponent,
+    DashboardComponent
   ],
   imports: [
     BrowserModule,
