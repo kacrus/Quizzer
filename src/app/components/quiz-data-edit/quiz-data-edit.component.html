@@ -1,0 +1,57 @@
+<table class="table table-sm">
+  <tbody>
+    <tr class="no-border">
+      <td class="fit-content align-middle">Quiz name: </td>
+      <td>
+        <input type="text" class="form-control form-control-sm" [(ngModel)]="quizName" />
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+
+<table class="table table-sm mt-4">
+    <thead class="table-secondary">
+      <tr>
+        <th *ngFor="let column of columns">
+            <div class="input-group">
+                <button class="input-group-text" id="{{column.id}}" [disabled]="columns.length <= 2" (click)="deleteColumn(column)">
+                    <i class="bi bi-x-lg icon" [class.text-danger]="columns.length > 2" [class.text-muted]="columns.length <= 2"></i>
+                </button>
+                <input type="text" class="form-control form-control-sm" [attr.aria-describedby]="column.id" [(ngModel)]="column.name">
+            </div>
+        </th>
+        <th class="fit-content">
+            <button class="btn btn-success btn-sm" (click)="addColumn()" title="Add new column">
+              <i class="bi bi-arrow-bar-right"></i>
+            </button>
+        </th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let row of rows">
+        <td *ngFor="let column of columns">
+            <input type="text" class="form-control form-control-sm" [attr.aria-describedby]="column.id" [(ngModel)]="row[column.id]" />
+        </td>
+        
+        <td class="fit-content">
+            <button class="btn btn-danger btn-sm" title="Delete row" (click)="deleteRow(row)">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </td>
+      </tr>
+
+      <tr>
+        <td [attr.colspan]="columns.length + 1" class="no-border">
+          <button class="btn btn-success btn-sm float-end" title="Download" (click)="downloadFile()" [disabled]="!canSave()">
+            <i class="bi bi-download"></i>
+          </button>
+
+          <button class="btn btn-success btn-sm float-end me-2" title="Add row" (click)="addRow()">
+              <i class="bi bi-arrow-bar-down"></i>
+          </button>
+        </td>
+      </tr>
+    </tbody>
+</table>
