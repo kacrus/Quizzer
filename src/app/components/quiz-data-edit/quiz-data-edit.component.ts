@@ -91,10 +91,10 @@ export class QuizDataEditComponent {
 
   public saveFile(): void {
     let quiz: Quiz = this.getQuizFromUi();
-    this.quizService.save(quiz)
+    this.quizService.save([quiz])
     .subscribe({
-      next: (quiz: Quiz) => {
-        this.onQuizSaved.emit(quiz);
+      next: (quizzes: Quiz[]) => {
+        this.onQuizSaved.emit(quizzes[0]);
       },
       error: (err: any) => {
         // todo: replace with toast

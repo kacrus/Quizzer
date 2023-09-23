@@ -4,6 +4,15 @@
             <button class="btn btn-success btn-sm" (click)="createNewQuizClick()">
                 <i class="bi bi-plus-lg"></i>
             </button>
+
+            
+            <button class="btn btn-success btn-sm me-1" (click)="downloadQuizes()">
+                <i class="bi bi-download"></i>
+            </button>
+
+            <input type="file" id="files" class="hidden" style="display:none;" (change)="uploadQuizzes($event)"/>
+            <button class="btn btn-success btn-sm me-1"><label for="files"><i class="bi bi-upload"></i></label></button>
+            
         </div>
     </div>
 
@@ -27,6 +36,9 @@
                         <td class="fit-content">{{quiz.fields.length}}</td>
                         <td class="fit-content">{{quiz.data.length}}</td>
                         <td class="fit-content">
+                            <button class="btn btn-primary btn-sm btn-success me-1" (click)="downloadQuiz(quiz)">
+                                <i class="bi bi-download"></i>
+                            </button>
                             <button class="btn btn-primary btn-sm btn-success me-1" (click)="editQuizClick(quiz)">
                                 <i class="bi bi-pencil"></i>
                             </button>

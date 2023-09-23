@@ -9,11 +9,27 @@ export class QuizService {
 
   constructor() { }
 
-  public save(quiz: Quiz): Observable<Quiz> {
-    return new Observable<Quiz>(observer => {
-      console.log("Saving quiz", quiz);
-      localStorage.setItem(quiz.id, JSON.stringify(quiz));
-      observer.next(quiz);
+  public hasDublicateQuizzes(quizzes: Quiz[]) : Observable<boolean> {
+    return new Observable<boolean>(observer => {
+      for(let i = 0; i < quizzes.length; i++){
+        if(localStorage.getItem(quizzes[i].id)) {
+          observer.next(true);
+          observer.complete();
+          return;
+        }
+      }
+
+      observer.next(false);
+      observer.complete();
+    });
+  }
+
+  public save(quizzes: Quiz[]): Observable<Quiz[]> {
+    return new Observable<Quiz[]>(observer => {
+      for(let i = 0; i < quizzes.length; i++){
+        localStorage.setItem(quizzes[i].id, JSON.stringify(quizzes[i]));
+      }
+      observer.next(quizzes);
       observer.complete();
     });
   }
