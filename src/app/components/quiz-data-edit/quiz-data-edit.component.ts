@@ -1,5 +1,6 @@
-import { Component, Input } from '@angular/core';
-import { Quiz } from 'src/app/models/quiz';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { FieldType, Quiz } from 'src/app/models/quiz';
+import { QuizService } from 'src/app/services/quiz.service';
 import { v4 as uuid } from 'uuid';
 
 @Component({
@@ -9,10 +10,15 @@ import { v4 as uuid } from 'uuid';
 })
 export class QuizDataEditComponent {
   @Input({ required: true }) public quiz!: Quiz;
+  @Output() public onQuizSaved: EventEmitter<Quiz> = new EventEmitter();
 
   protected quizName: string = "";
   protected columns: Column[] = [];
   protected rows: any[] = [];
+
+  constructor(
+    private quizService: QuizService,
+  ) { }
 
   ngOnInit(): void {
     this.quizName = this.quiz.name;
@@ -83,6 +89,20 @@ export class QuizDataEditComponent {
     return this.rows.length > 0;
   }
 
+  public saveFile(): void {
+    let quiz: Quiz = this.getQuizFromUi();
+    this.quizService.save(quiz)
+    .subscribe({
+      next: (quiz: Quiz) => {
+        this.onQuizSaved.emit(quiz);
+      },
+      error: (err: any) => {
+        // todo: replace with toast
+        console.log("Quiz saved");
+      }
+    });
+  }
+
   public downloadFile(): void {
     let json: string = this.getJson();
 
@@ -92,6 +112,26 @@ export class QuizDataEditComponent {
     anchorElem.download = `${this.quizName}.json`;
     anchorElem.click();
 
+  }
+
+  private getQuizFromUi(): Quiz {
+    let rowObjects: any[] = [];
+
+    for(let row of this.rows){
+      let jsonObject: any = {};
+      for(let column of this.columns){
+        jsonObject[column.name] = row[column.id];
+      }
+
+      rowObjects.push(jsonObject);
+    }
+
+    let quiz: Quiz = new Quiz(this.quiz.id);
+    quiz.name = this.quizName;
+    quiz.fields = this.columns.map(c => ({ name: c.name, type: FieldType.Text }));
+    quiz.data = rowObjects;
+
+    return quiz;
   }
 
   private getJson(): string {
@@ -106,11 +146,10 @@ export class QuizDataEditComponent {
       rowObjects.push(jsonObject);
     }
 
-    let quiz: Quiz = {
-      name: this.quizName,
-      fields: this.quiz.fields,
-      data: rowObjects
-    };
+    let quiz: Quiz = new Quiz(this.quiz.id);
+    quiz.name = this.quizName;
+    quiz.fields = this.columns.map(c => ({ name: c.name, type: FieldType.Text }));
+    quiz.data = rowObjects;
 
     return JSON.stringify(quiz, null, 2);
   }

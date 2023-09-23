@@ -1,4 +1,9 @@
 export class Quiz {
+    constructor(id: string) {
+        this.id = id;
+    }
+
+    public id: string;
     public name: string = "";
     public fields: Field[] = [];
     public data: any[] = [];

@@ -1,13 +1,42 @@
 <div class="container">
     <div class="row justify-content-md-center mt-5">
-        <div class="col-4">
-            <button class="btn btn-success w-100" (click)="createNewQuizClick()">Create a new quiz</button>
+        <div class="col-8 d-flex flex-row-reverse">
+            <button class="btn btn-success btn-sm" (click)="createNewQuizClick()">
+                <i class="bi bi-plus-lg"></i>
+            </button>
         </div>
     </div>
 
-    <div class="row justify-content-md-center mt-3">
-        <div class="col-4">
-            <button class="btn btn-success w-100">Edit an existing quiz</button>
+    <div class="row justify-content-md-center mt-2">
+        <div class="col-8">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="fit-content">#</th>
+                        <th>Quiz name</th>
+                        <th class="fit-content">Fields</th>
+                        <th class="fit-content">Questions</th>
+                        <th class="fit-content"></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr *ngFor="let quiz of quizzes; let i = index">
+                        <td class="fit-content">{{i + 1}}</td>
+                        <td>{{quiz.name}}</td>
+                        <td class="fit-content">{{quiz.fields.length}}</td>
+                        <td class="fit-content">{{quiz.data.length}}</td>
+                        <td class="fit-content">
+                            <button class="btn btn-primary btn-sm btn-success me-1" (click)="editQuizClick(quiz)">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm" (click)="deleteQuizClick(quiz)">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </td>
+                    </tr>
+
+            </table>
         </div>
     </div>
 </div>

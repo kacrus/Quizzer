@@ -13,6 +13,7 @@
 <table class="table table-sm mt-4">
     <thead class="table-secondary">
       <tr>
+        <th class="fit-content"></th>
         <th *ngFor="let column of columns">
             <div class="input-group">
                 <button class="input-group-text" id="{{column.id}}" [disabled]="columns.length <= 2" (click)="deleteColumn(column)">
@@ -30,7 +31,8 @@
     </thead>
 
     <tbody>
-      <tr *ngFor="let row of rows">
+      <tr *ngFor="let row of rows; let i = index">
+        <td class="fit-content align-middle">{{ i + 1 }}</td>
         <td *ngFor="let column of columns">
             <input type="text" class="form-control form-control-sm" [attr.aria-describedby]="column.id" [(ngModel)]="row[column.id]" />
         </td>
@@ -43,9 +45,9 @@
       </tr>
 
       <tr>
-        <td [attr.colspan]="columns.length + 1" class="no-border">
-          <button class="btn btn-success btn-sm float-end" title="Download" (click)="downloadFile()" [disabled]="!canSave()">
-            <i class="bi bi-download"></i>
+        <td [attr.colspan]="columns.length + 2" class="no-border">
+          <button class="btn btn-success btn-sm float-end" title="Save" (click)="saveFile()" [disabled]="!canSave()">
+            <i class="bi bi-floppy"></i>
           </button>
 
           <button class="btn btn-success btn-sm float-end me-2" title="Add row" (click)="addRow()">
