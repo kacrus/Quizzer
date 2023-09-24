@@ -20,6 +20,7 @@ export class DashboardComponent {
   ngOnInit(): void {
     this.quizService.getQuizzes()
       .subscribe(quizzes => {
+        quizzes.sort((a, b) => a.name.localeCompare(b.name));
         this.quizzes = quizzes;
       });
   }

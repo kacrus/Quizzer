@@ -81,6 +81,23 @@ export class QuizComponent {
     this.checked = !this.checked;
   }
 
+  protected getCorrectQuestions(): number {
+    return this.questions.map(a=>a.correctAnswerGiven ? 1 : 0).reduce((s1: number, s2 :number)=>s1+s2,0)
+  }
+
+  protected getCorrectAnswers(): number {
+    let counter = 0;
+    for (let question of this.questions) {
+      for (let answer of question.answerFields) {
+        if (answer.value == answer.userValue) {
+          counter++;
+        }
+      }
+    }
+
+    return counter;
+  }
+ 
   private setQuestion(idx: number) {
     let question = this.questions[idx];
     this.form.reset();

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Quiz } from 'src/app/models/quiz';
 import { QuizService } from 'src/app/services/quiz.service';
 
@@ -15,6 +15,7 @@ export class QuizEditComponent {
   constructor(
     route: ActivatedRoute,
     quizService: QuizService,
+    private router: Router,
   ) {
     route.params.subscribe(params => {
       let id = params["id"];
@@ -37,5 +38,9 @@ export class QuizEditComponent {
         this.notFound = true;
       }
     });
+  }
+
+  public onQuizSaved(): void {
+    this.router.navigate(["/"]);
   }
 }

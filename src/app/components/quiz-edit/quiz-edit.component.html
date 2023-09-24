@@ -13,7 +13,7 @@
 
     <div class="row mt-3" *ngIf="quiz">
         <div class="col-12">
-           <app-quiz-data-edit [quiz]="quiz"></app-quiz-data-edit>
+           <app-quiz-data-edit [quiz]="quiz" (onQuizSaved)="onQuizSaved()"></app-quiz-data-edit>
         </div>
     </div>
 </div>

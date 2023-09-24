@@ -56,6 +56,26 @@
     <div class="row" *ngIf="showReport">
         <div class="col-12">
             <table class="table table-bordered">
+                <tbody>
+                    <tr>
+                        <th>Correct Questions</th>
+                        <td>{{ getCorrectQuestions() }} ({{getCorrectQuestions()/ questions.length* 100| number:'1.0-1'}}%)</td>
+                    </tr>
+                    <tr>
+                        <th>Incorrect Questions</th>
+                        <td>{{ questions.length - getCorrectQuestions() }} ({{100-getCorrectQuestions()/ questions.length* 100| number:'1.0-1'}}%)</td>
+                    </tr>
+                    <tr>
+                        <th>Correct Answers</th>
+                        <td>{{ getCorrectAnswers() }} ({{getCorrectAnswers()/(questions.length * questions[0].answerFields.length)*100| number:'1.0-1'}}%)</td>
+                    </tr>
+                    <tr>
+                        <th>Incorrect Answers</th>
+                        <td>{{ questions.length * questions[0].answerFields.length - getCorrectAnswers() }} ({{100-getCorrectAnswers()/(questions.length * questions[0].answerFields.length)*100| number:'1.0-1'}}%)</td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-bordered">
                 <thead>
                     <tr>
                         <th class="fit-content"></th>
