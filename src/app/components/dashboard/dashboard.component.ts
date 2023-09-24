@@ -62,6 +62,10 @@ export class DashboardComponent {
     this.downloadData(data, `${quiz.name} (${quiz.id})`);
   }
 
+  protected runQuiz(quiz: Quiz): void {
+    this.router.navigate(["/quiz", quiz.id]);
+  }
+
   protected uploadQuizzes(event: any): void {
     let file = event.target.files[0];
     if (!file) {

@@ -36,6 +36,9 @@
                         <td class="fit-content">{{quiz.fields.length}}</td>
                         <td class="fit-content">{{quiz.data.length}}</td>
                         <td class="fit-content">
+                            <button class="btn btn-primary btn-sm btn-success me-1" (click)="runQuiz(quiz)">
+                                <i class="bi bi-play-fill"></i>
+                            </button>
                             <button class="btn btn-primary btn-sm btn-success me-1" (click)="downloadQuiz(quiz)">
                                 <i class="bi bi-download"></i>
                             </button>

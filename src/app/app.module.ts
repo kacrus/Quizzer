@@ -8,6 +8,8 @@ import { QuizCreateComponent } from './components/quiz-create/quiz-create.compon
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { QuizEditComponent } from './components/quiz-edit/quiz-edit.component';
+import { QuizComponent } from './components/quiz/quiz.component';
+import { RouterModule } from '@angular/router';
 
 @NgModule({
   declarations: [
@@ -15,12 +17,15 @@ import { QuizEditComponent } from './components/quiz-edit/quiz-edit.component';
     QuizDataEditComponent,
     QuizCreateComponent,
     DashboardComponent,
-    QuizEditComponent
+    QuizEditComponent,
+    QuizComponent, 
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    FormsModule
+    RouterModule,
+    FormsModule,
+    ReactiveFormsModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
