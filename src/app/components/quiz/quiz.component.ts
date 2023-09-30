@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { QuizService } from 'src/app/services/quiz.service';
@@ -15,6 +15,21 @@ export class QuizComponent {
   protected currentQuestionIndex: number = 0;
   protected questions: Question[] = [];
   protected showReport: boolean = false;
+  protected showAnswers: boolean = false;
+
+  @ViewChild('firstAnswer') firstAnswerField: ElementRef | undefined;
+
+  ngAfterViewInit() {
+    setInterval(() => {
+      if (document.activeElement?.tagName !== "BODY") {
+        return;
+      }
+
+      if (document.activeElement != this.firstAnswerField?.nativeElement) {
+        this.firstAnswerField?.nativeElement.focus();
+      }
+    }, 200);
+  }
 
   constructor(
     route: ActivatedRoute,
@@ -41,6 +56,10 @@ export class QuizComponent {
             this.questions.push(question);
           }
 
+          if (route.snapshot.queryParams["shuffleQuestions"] == "true") {
+            this.shuffleQuestions();
+          }
+
           this.setQuestion(0);
         },
         error: err => console.error(err)
@@ -54,35 +73,47 @@ export class QuizComponent {
   }
 
   protected onSubmit() {
-    if (this.checked) {
-      this.currentQuestionIndex++;
-      if (this.currentQuestionIndex >= this.questions.length) {
-        this.showReport = true;
-        return;
+    if (this.showAnswers) {
+      if (this.checked) {
+        this.moveToNextQuestion();
+      } else {
+        this.collectAnswers();
       }
-      this.setQuestion(this.currentQuestionIndex);
 
+      this.checked = !this.checked;
     } else {
-      let value = this.form.getRawValue();
-      let question = this.questions[this.currentQuestionIndex];
+      this.collectAnswers();
+      this.moveToNextQuestion();
+    }
+  }
 
-      let correctAnswerGiven = true;
+  private moveToNextQuestion() {
+    this.currentQuestionIndex++;
+    if (this.currentQuestionIndex >= this.questions.length) {
+      this.showReport = true;
+      return;
+    }
+    this.setQuestion(this.currentQuestionIndex);
+  }
 
-      for (let field of question.answerFields) {
-        field.userValue = value[field.name];
-        if (field.value != field.userValue) {
-          correctAnswerGiven = false;
-        }
+  private collectAnswers() {
+    let value = this.form.getRawValue();
+    let question = this.questions[this.currentQuestionIndex];
+
+    let correctAnswerGiven = true;
+
+    for (let field of question.answerFields) {
+      field.userValue = value[field.name];
+      if (field.value != field.userValue) {
+        correctAnswerGiven = false;
       }
-
-      question.correctAnswerGiven = correctAnswerGiven;
     }
 
-    this.checked = !this.checked;
+    question.correctAnswerGiven = correctAnswerGiven;
   }
 
   protected getCorrectQuestions(): number {
-    return this.questions.map(a=>a.correctAnswerGiven ? 1 : 0).reduce((s1: number, s2 :number)=>s1+s2,0)
+    return this.questions.map(a => a.correctAnswerGiven ? 1 : 0).reduce((s1: number, s2: number) => s1 + s2, 0)
   }
 
   protected getCorrectAnswers(): number {
@@ -97,7 +128,7 @@ export class QuizComponent {
 
     return counter;
   }
- 
+
   private setQuestion(idx: number) {
     let question = this.questions[idx];
     this.form.reset();
@@ -106,7 +137,7 @@ export class QuizComponent {
       this.form.controls[field.name].setValue(field.value);
     }
 
-    var element = document.getElementById("field-"+question.answerFields[0].name);
+    var element = document.getElementById("field-" + question.answerFields[0].name);
     console.log(element);
   }
 }

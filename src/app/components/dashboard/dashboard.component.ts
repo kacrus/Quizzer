@@ -64,7 +64,7 @@ export class DashboardComponent {
   }
 
   protected runQuiz(quiz: Quiz): void {
-    this.router.navigate(["/quiz", quiz.id]);
+    this.router.navigate(["/quiz", quiz.id, "settings"]);
   }
 
   protected uploadQuizzes(event: any): void {

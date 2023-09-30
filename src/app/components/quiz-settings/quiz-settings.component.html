@@ -1,0 +1,29 @@
+<div class="container">
+    <div class="row mt-3">
+        <div class="col-3"></div>
+        <div class="col-6 text-center">
+            <h3>{{quizName}}</h3>
+        </div>
+    </div>
+
+    <div class="row" *ngIf="quizName">
+        <div class="col-3"></div>
+        <div class="col-6">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="" id="shuffleQuestions">
+                <label class="form-check-label" for="shuffleQuestions">
+                    Shuffle questions
+                </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="" id="showAnswers" checked>
+                <label class="form-check-label" for="showAnswers">
+                    Show correct answers on each question
+                </label>
+            </div>
+            <div>
+                <button type="button" class="btn btn-primary mt-3 float-end" (click)="startQuiz()">Start quiz</button>
+            </div>
+        </div>
+    </div>
+</div>

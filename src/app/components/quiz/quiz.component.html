@@ -1,21 +1,15 @@
 <div class="container mt-4">
     <div class="row justify-content-md-center">
-        <div class="col-8 text-center">
+        <div class="col-5 text-center">
             <h3>{{ quizName }}</h3>
         </div>
     </div>
 
-    <div class="row justify-content-md-center mt-3" *ngIf="!showReport && !checked && currentQuestionIndex === 0">
-        <div class="col-8 d-flex flex-row-reverse">
-            <button type="button" class="btn btn-warning" (click)="shuffleQuestions()">Shuffle</button>
-        </div>
-    </div>
-
     <div class="row justify-content-md-center mt-3" *ngIf="!showReport">
-        <div class="col-8">
+        <div class="col-5">
             <table class="table">
                 <tr>
-                    <td *ngFor="let question of questions; let i = index" style="height: 12px;min-height: 12px; border: 1px solid white;"
+                    <td *ngFor="let question of questions; let i = index" style="height: 6px;min-height: 6px; border: 1px solid white;"
                         [class.bg-danger]="question.correctAnswerGiven === false" [class.bg-success]="question.correctAnswerGiven === true"
                         [class.bg-secondary]="question.correctAnswerGiven === null && i !== currentQuestionIndex"
                         [class.bg-primary]="i === currentQuestionIndex">
@@ -26,18 +20,18 @@
     </div>
 
     <div class="row justify-content-md-center mt-3" *ngIf="!showReport">
-        <div class="col-8">
+        
+        <div class="col-5">
             <form [formGroup]="form">
-                <div class="mb-1" *ngFor="let field of questions[currentQuestionIndex].questionFields">
-                    <label for="{{field.name}}" class="form-label">{{field.name}}</label>
-                    <input formControlName="{{field.name}}" type="text" class="form-control form-control-sm" id="{{field.name}}">
+                <div class="mb-1" *ngFor="let field of questions[currentQuestionIndex].questionFields"> 
+                    <h3 class="text-center">{{field.value}}</h3>
                 </div>
 
-                <div class="mb-1" *ngFor="let field of questions[currentQuestionIndex].answerFields">
-                    <label for="{{field.name}}" class="form-label">{{field.name}}</label>
-                    <input formControlName="{{field.name}}" type="text" class="form-control form-control-sm" id="field-{{field.name}}" (keydown.enter)="onSubmit()"
+                <div class="mt-3 mb-1" *ngFor="let field of questions[currentQuestionIndex].answerFields">
+                    <input #firstAnswer formControlName="{{field.name}}" type="text" class="form-control form-control-sm" id="field-{{field.name}}" (keydown.enter)="onSubmit()"
                         [class.is-invalid]="field.userValue !== undefined && field.userValue !== field.value"
-                        [class.is-valid]="field.userValue !== undefined && field.userValue === field.value" [attr.aria-describedby]="field.name">
+                        [class.is-valid]="field.userValue !== undefined && field.userValue === field.value" [attr.aria-describedby]="field.name"
+                        placeholder="{{field.name}}">
                     <div id="{{field.name}}" class="invalid-feedback">
                         Correct answer: {{field.value}}
                     </div>
@@ -47,7 +41,7 @@
     </div>
 
     <div class="row justify-content-md-center mt-3" *ngIf="!showReport">
-        <div class="col-8 d-flex flex-row-reverse">
+        <div class="col-5 d-flex flex-row-reverse">
             <button type="button" class="btn" [class.btn-primary]="checked" [class.btn-success]="!checked" (click)="onSubmit()">{{ checked ? "Next" :
                 "Check"}}</button>
         </div>

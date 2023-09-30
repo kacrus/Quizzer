@@ -1,2 +1,14 @@
 /* You can add global styles to this file, and also import other style files */
 @import "~bootstrap-icons/font/bootstrap-icons.css";
+
+.btn-sm-3-5 {
+    --bs-btn-padding-y: 0.15rem;
+    --bs-btn-padding-x: 0.3rem;
+    --bs-btn-font-size: 0.525rem;
+}
+
+.btn-sm-4-5 {
+    --bs-btn-padding-y: 0.2rem;
+    --bs-btn-padding-x: 0.4rem;
+    --bs-btn-font-size: 0.7rem;
+}

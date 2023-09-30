@@ -10,6 +10,7 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { QuizEditComponent } from './components/quiz-edit/quiz-edit.component';
 import { QuizComponent } from './components/quiz/quiz.component';
 import { RouterModule } from '@angular/router';
+import { QuizSettingsComponent } from './components/quiz-settings/quiz-settings.component';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import { RouterModule } from '@angular/router';
     QuizCreateComponent,
     DashboardComponent,
     QuizEditComponent,
-    QuizComponent, 
+    QuizComponent,
+    QuizSettingsComponent, 
   ],
   imports: [
     BrowserModule,
