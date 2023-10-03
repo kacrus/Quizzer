@@ -38,6 +38,8 @@ export class QuizComponent {
     route.params.subscribe(params => {
       quizService.getQuiz(params["id"]).subscribe({
         next: quiz => {
+
+          this.showAnswers = route.snapshot.queryParams["showAnswers"] == "true"; 
           if (quiz == null) return;
 
           this.quizName = quiz!.name;
