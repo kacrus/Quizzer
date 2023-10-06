@@ -41,6 +41,6 @@ export class QuizEditComponent {
   }
 
   public onQuizSaved(): void {
-    this.router.navigate(["/"]);
+    this.router.navigate(["/"], { queryParams: { path: this.quiz?.groups.join("/") }});
   }
 }

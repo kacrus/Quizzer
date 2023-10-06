@@ -9,8 +9,15 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { QuizEditComponent } from './components/quiz-edit/quiz-edit.component';
 import { QuizComponent } from './components/quiz/quiz.component';
-import { RouterModule } from '@angular/router';
+import { BaseRouteReuseStrategy, RouteReuseStrategy, RouterModule } from '@angular/router';
 import { QuizSettingsComponent } from './components/quiz-settings/quiz-settings.component';
+
+class NoReuseStrategy extends BaseRouteReuseStrategy {
+  override shouldReuseRoute() {
+    return false;
+  }
+}
+
 
 @NgModule({
   declarations: [
@@ -29,7 +36,10 @@ import { QuizSettingsComponent } from './components/quiz-settings/quiz-settings.
     FormsModule,
     ReactiveFormsModule,
   ],
-  providers: [],
+  providers: [
+    { provide: RouteReuseStrategy, useClass: NoReuseStrategy }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
+

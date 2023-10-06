@@ -26,4 +26,43 @@
             </div>
         </div>
     </div>
+
+    <div class="row">
+        <div class="col-2"></div>
+        <div class="col-8">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Date</th>
+                        <th>Correct Questions</th>
+                        <th>Questions Change</th>
+                        <th>Correct Answers</th>
+                        <th>Answers Change</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr *ngFor="let report of reports; let i = index">
+                        <td>{{i+1}}</td>
+                        <td>{{report.date|date:'short'}}</td>
+                        <td>{{report.correctQuestions}} of {{report.totalQuestions}} ({{report.correctQuestions/report.totalQuestions|percent:'1.2-2'}})</td>
+                        <td>
+                            <i class="bi bi-arrow-up text-success" *ngIf="report.correctQuestionsChanged && report.correctQuestionsChanged > 0"></i>
+                            <i class="bi bi-arrow-down text-danger" *ngIf="report.correctQuestionsChanged && report.correctQuestionsChanged < 0"></i>
+                            <i class="bi bi-dash text-secondary" *ngIf="report.correctQuestionsChanged === 0"></i>
+                            <span *ngIf="report.correctQuestionsChanged">{{report.correctQuestionsChanged | percent:'1.2-2'}}</span>
+                        </td>
+                        <td>{{report.correctAnswers}} of {{report.totalAnswers}} ({{report.correctAnswers/report.totalAnswers|percent:'1.2-2'}})</td>
+                        <td>
+                            <i class="bi bi-arrow-up text-success" *ngIf="report.correctAnswersChanged && report.correctAnswersChanged > 0"></i>
+                            <i class="bi bi-arrow-down text-danger" *ngIf="report.correctAnswersChanged && report.correctAnswersChanged < 0"></i>
+                            <i class="bi bi-dash text-secondary" *ngIf="report.correctAnswersChanged === 0"></i>
+                            <span *ngIf="report.correctAnswersChanged">{{report.correctAnswersChanged | percent:'1.2-2'}}</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>

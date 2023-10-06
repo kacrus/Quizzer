@@ -5,24 +5,61 @@
                 <i class="bi bi-plus-lg"></i>
             </button>
 
-            
-            <button class="btn btn-success btn-sm-4-5 me-1" (click)="downloadQuizes()">
+
+            <button class="btn btn-success btn-sm-4-5 me-1" (click)="downloadQuizes()"
+                title="{{previousFolders.length ? 'Works only from root folder':''}}" style="pointer-events: auto;">
                 <i class="bi bi-download"></i>
             </button>
 
-            <input type="file" id="files" class="hidden" style="display:none;" (change)="uploadQuizzes($event)"/>
-            <button class="btn btn-success btn-sm-4-5 me-1"><label for="files"><i class="bi bi-upload"></i></label></button>
-            
+            <input type="file" id="files" class="hidden" style="display:none;" (change)="uploadQuizzes($event)" />
+            <button class="btn btn-success btn-sm-4-5 me-1" [disabled]="previousFolders.length"
+                title="{{previousFolders.length ? 'Works only from root folder':''}}" style="pointer-events: auto;">
+                <label for="files"><i class="bi bi-upload"></i></label></button>
+
         </div>
     </div>
 
-    <div class="row justify-content-md-center mt-2">
+    <div class="row justify-content-md-center">
+        <div class="col-8">
+            <div *ngIf="currentFolder?.subFolders">
+                <table>
+                    <tr class="fit-content">
+                        <td>
+                            <button class="btn btn-secondary btn-sm-4-5 me-1" (click)="backClick()" [disabled]="!previousFolders.length">
+                                <i class="bi bi-arrow-left"></i>
+                            </button>
+                        </td>
+                        <td> <i class="bi bi-folder-fill text-warning"></i></td>
+                        <td *ngFor="let f of previousFolders">
+                            {{ f.name }} /
+                        </td>
+                        <td>{{currentFolder?.name}}</td>
+                    </tr>
+                </table>
+
+                <ul class="list-group mt-3" *ngIf="currentFolder">
+                    <li class="list-group-item" *ngFor="let subFolder of currentFolder.subFolders" (click)="folderClick(subFolder)">
+                        <div>
+                            <i class="bi bi-folder-fill text-warning"></i>
+                            <span class="ms-1">{{subFolder.name}}</span>
+                        </div>
+
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-md-center mt-2" *ngIf="currentFolder?.quizzes?.length">
         <div class="col-8">
             <table class="table">
                 <thead>
                     <tr>
                         <th class="fit-content">#</th>
                         <th>Quiz name</th>
+                        <th class="fit-content">Passed</th>
+                        <th class="fit-content">L10 Q %</th>
+                        <th class="fit-content">L10 A %</th>
                         <th class="fit-content">Fields</th>
                         <th class="fit-content">Questions</th>
                         <th class="fit-content"></th>
@@ -30,11 +67,16 @@
                 </thead>
 
                 <tbody>
-                    <tr *ngFor="let quiz of quizzes; let i = index">
+                    <tr *ngFor="let quiz of currentFolder!.quizzes; let i = index">
                         <td class="fit-content">{{i + 1}}</td>
                         <td>{{quiz.name}}</td>
-                        <td class="fit-content">{{quiz.fields.length}}</td>
-                        <td class="fit-content">{{quiz.data.length}}</td>
+                        <td class="fit-content">{{quiz.passedCount}}</td>
+                        <td class="fit-content" *ngIf="quiz.last10QuestionSuccessRate">{{quiz.last10QuestionSuccessRate |percent:'1.2-2' }}</td>
+                        <td class="fit-content" *ngIf="!quiz.last10QuestionSuccessRate"><i class="bi bi-question"></i></td>
+                        <td class="fit-content" *ngIf="quiz.last10AnswerSuccessRate">{{quiz.last10AnswerSuccessRate |percent:'1.2-2' }}</td>
+                        <td class="fit-content" *ngIf="!quiz.last10AnswerSuccessRate"><i class="bi bi-question"></i></td>
+                        <td class="fit-content">{{quiz.fields}}</td>
+                        <td class="fit-content">{{quiz.data}}</td>
                         <td class="fit-content">
                             <button class="btn btn-primary btn-sm-4-5 btn-success me-1" (click)="runQuiz(quiz)">
                                 <i class="bi bi-play-fill"></i>

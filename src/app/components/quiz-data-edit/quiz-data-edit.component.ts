@@ -12,7 +12,10 @@ export class QuizDataEditComponent {
   @Input({ required: true }) public quiz!: Quiz;
   @Output() public onQuizSaved: EventEmitter<Quiz> = new EventEmitter();
 
+  private readonly separator: string = "/";
+
   protected quizName: string = "";
+  protected quizGroup: string = "";
   protected columns: Column[] = [];
   protected rows: any[] = [];
 
@@ -22,11 +25,12 @@ export class QuizDataEditComponent {
 
   ngOnInit(): void {
     this.quizName = this.quiz.name;
-    this.columns = this.quiz.fields.map(f => new Column(f.name));
-    for(let question of this.quiz.data){
-      let row:any = {};
-      for(let column of this.columns){
-        row[column.id] = question[column.name];
+    this.quizGroup = this.quiz.groups.join(this.separator);
+    this.columns = this.quiz.fields.map(f => new Column(f.id, f.name));
+    for (let question of this.quiz.data) {
+      let row: any = {};
+      for (let column of this.columns) {
+        row[column.id] = question[column.id];
       }
 
       this.rows.push(row);
@@ -34,28 +38,28 @@ export class QuizDataEditComponent {
   }
 
   public addColumn(): void {
-    let column = new Column("");
+    let column = new Column(uuid(), "");
     this.columns.push(column);
 
-    for(let row of this.rows){
+    for (let row of this.rows) {
       row[column.id] = "";
     }
   }
 
   public deleteColumn(column: Column): void {
     let index = this.columns.indexOf(column);
-    if(index > -1){
+    if (index > -1) {
       this.columns.splice(index, 1);
     }
 
-    for(let row of this.rows){
+    for (let row of this.rows) {
       delete row[column.id];
     }
   }
 
   public addRow(): void {
-    let row:any = {};
-    for(let column of this.columns){
+    let row: any = {};
+    for (let column of this.columns) {
       row[column.id] = "";
     }
 
@@ -64,7 +68,7 @@ export class QuizDataEditComponent {
 
   public deleteRow(row: any): void {
     let index = this.rows.indexOf(row);
-    if(index > -1){
+    if (index > -1) {
       this.rows.splice(index, 1);
     }
   }
@@ -76,12 +80,12 @@ export class QuizDataEditComponent {
 
     // any column name is empty or duplicated
     let columnNames = this.columns.map(c => c.name);
-    if(columnNames.some(c => c == "")){
+    if (columnNames.some(c => c == "")) {
       return false;
     }
 
     let uniqueColumnNames = [...new Set(columnNames)];
-    if(uniqueColumnNames.length != columnNames.length){
+    if (uniqueColumnNames.length != columnNames.length) {
       return false;
     }
 
@@ -92,22 +96,22 @@ export class QuizDataEditComponent {
   public saveFile(): void {
     let quiz: Quiz = this.getQuizFromUi();
     this.quizService.save([quiz])
-    .subscribe({
-      next: (quizzes: Quiz[]) => {
-        this.onQuizSaved.emit(quizzes[0]);
-      },
-      error: (err: any) => {
-        // todo: replace with toast
-        console.log("Quiz saved");
-      }
-    });
+      .subscribe({
+        next: (quizzes: Quiz[]) => {
+          this.onQuizSaved.emit(quizzes[0]);
+        },
+        error: (err: any) => {
+          // todo: replace with toast
+          console.log("Quiz saved");
+        }
+      });
   }
 
   public downloadFile(): void {
     let json: string = this.getJson();
 
     let anchorElem: HTMLAnchorElement = document.createElement('a');
-    var file = new Blob([json], {type: "text/plain"});
+    var file = new Blob([json], { type: "text/plain" });
     anchorElem.href = URL.createObjectURL(file);
     anchorElem.download = `${this.quizName}.json`;
     anchorElem.click();
@@ -117,10 +121,10 @@ export class QuizDataEditComponent {
   private getQuizFromUi(): Quiz {
     let rowObjects: any[] = [];
 
-    for(let row of this.rows){
+    for (let row of this.rows) {
       let jsonObject: any = {};
-      for(let column of this.columns){
-        jsonObject[column.name] = row[column.id];
+      for (let column of this.columns) {
+        jsonObject[column.id]  = row[column.id];
       }
 
       rowObjects.push(jsonObject);
@@ -128,7 +132,12 @@ export class QuizDataEditComponent {
 
     let quiz: Quiz = new Quiz(this.quiz.id);
     quiz.name = this.quizName;
-    quiz.fields = this.columns.map(c => ({ name: c.name, type: FieldType.Text }));
+    if (this.quizGroup != "") {
+      quiz.groups = this.quizGroup.split(this.separator);
+    } else {
+      quiz.groups = []; 
+    }
+    quiz.fields = this.columns.map(c => ({ id: c.id, name: c.name, type: FieldType.Text }));
     quiz.data = rowObjects;
 
     return quiz;
@@ -137,9 +146,9 @@ export class QuizDataEditComponent {
   private getJson(): string {
     let rowObjects: any[] = [];
 
-    for(let row of this.rows){
+    for (let row of this.rows) {
       let jsonObject: any = {};
-      for(let column of this.columns){
+      for (let column of this.columns) {
         jsonObject[column.name] = row[column.id];
       }
 
@@ -148,7 +157,7 @@ export class QuizDataEditComponent {
 
     let quiz: Quiz = new Quiz(this.quiz.id);
     quiz.name = this.quizName;
-    quiz.fields = this.columns.map(c => ({ name: c.name, type: FieldType.Text }));
+    quiz.fields = this.columns.map(c => ({ id: c.id, name: c.name, type: FieldType.Text }));
     quiz.data = rowObjects;
 
     return JSON.stringify(quiz, null, 2);
@@ -156,8 +165,8 @@ export class QuizDataEditComponent {
 }
 
 class Column {
-  constructor(name: string) {
-    this.id = uuid();
+  constructor(id: string, name: string) {
+    this.id = id;
     this.name = name;
   }
 

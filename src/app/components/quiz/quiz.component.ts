@@ -1,7 +1,9 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Field, QuizPassedReport, QuizPassedReportAnswerField, QuizPassedReportQuestion, QuizPassedReportQuestionField } from 'src/app/models/quiz';
 import { QuizService } from 'src/app/services/quiz.service';
+import { v4 as uuid } from 'uuid';
 
 @Component({
   selector: 'app-quiz',
@@ -11,9 +13,14 @@ import { QuizService } from 'src/app/services/quiz.service';
 export class QuizComponent {
   protected checked: boolean = false;
   protected form: FormGroup = new FormGroup({});
+  private quizId: string = "";
+
+  private fields: Field[] = [];
   protected quizName: string = "";
+  protected quizGroup: string = "";
   protected currentQuestionIndex: number = 0;
   protected questions: Question[] = [];
+  protected shuffleQuestionsValue: boolean = false;
   protected showReport: boolean = false;
   protected showAnswers: boolean = false;
 
@@ -33,31 +40,35 @@ export class QuizComponent {
 
   constructor(
     route: ActivatedRoute,
-    quizService: QuizService,
+    private quizService: QuizService,
+    private router: Router
   ) {
     route.params.subscribe(params => {
       quizService.getQuiz(params["id"]).subscribe({
         next: quiz => {
-
-          this.showAnswers = route.snapshot.queryParams["showAnswers"] == "true"; 
+          this.quizId = quiz?.id ?? "";
+          this.showAnswers = route.snapshot.queryParams["showAnswers"] == "true";
           if (quiz == null) return;
 
           this.quizName = quiz!.name;
+          this.quizGroup = quiz!.groups.join("/");
+          this.fields = quiz!.fields;
 
           for (let row of quiz?.data) {
             let question = new Question();
-            question.questionFields = [new QuestionField(quiz.fields[0].name, row[quiz.fields[0].name])];
+            question.questionFields = [new QuestionField(quiz.fields[0].name, row[quiz.fields[0].id])];
             let control = new FormControl();
             control.disable();
             this.form.addControl(quiz.fields[0].name, control);
             for (let i = 1; i < quiz.fields.length; i++) {
-              question.answerFields.push(new AnswerField(quiz.fields[i].name, row[quiz.fields[i].name]));
+              question.answerFields.push(new AnswerField(quiz.fields[i].name, row[quiz.fields[i].id]));
               this.form.addControl(quiz.fields[i].name, new FormControl());
             }
 
             this.questions.push(question);
           }
 
+          this.shuffleQuestionsValue = route.snapshot.queryParams["shuffleQuestions"];
           if (route.snapshot.queryParams["shuffleQuestions"] == "true") {
             this.shuffleQuestions();
           }
@@ -66,6 +77,15 @@ export class QuizComponent {
         },
         error: err => console.error(err)
       });
+    });
+  }
+
+  protected onRestart() {
+    this.router.navigate(["/quiz", this.quizId], {
+      queryParams: {
+        shuffleQuestions: this.shuffleQuestionsValue,
+        showAnswers: this.showAnswers
+      }
     });
   }
 
@@ -93,10 +113,41 @@ export class QuizComponent {
     this.currentQuestionIndex++;
     if (this.currentQuestionIndex >= this.questions.length) {
       this.showReport = true;
+      this.saveReport();
       return;
     }
     this.setQuestion(this.currentQuestionIndex);
   }
+
+  private saveReport() {
+    let report = new QuizPassedReport();
+    report.quizId = this.quizId;
+    report.id = uuid();
+    report.fields = this.fields;
+    report.questions = this.questions.map(q => {
+      let question = new QuizPassedReportQuestion();
+      question.questionFields = q.questionFields.map(qf => {
+        let field = new QuizPassedReportQuestionField();
+        field.fieldId = this.fields.filter(f => f.name == qf.name)[0].id; 
+        field.name = qf.value;
+        return field;
+      });
+      question.answerFields = q.answerFields.map(af => {
+        let field = new QuizPassedReportAnswerField();
+        field.fieldId = af.name;
+        field.userAnswer = af.userValue;
+        field.correctAnswer = af.value;
+        return field;
+      });
+      return question;
+    });
+
+    this.quizService.saveReport(report).subscribe({
+      next: () => { },
+      error: err => console.error(err)
+    });
+  }
+
 
   private collectAnswers() {
     let value = this.form.getRawValue();
@@ -112,6 +163,14 @@ export class QuizComponent {
     }
 
     question.correctAnswerGiven = correctAnswerGiven;
+  }
+
+  protected backToList(): void {
+    this.router.navigate(["/"], {
+      queryParams: {
+        path: this.quizGroup
+      }
+    });
   }
 
   protected getCorrectQuestions(): number {
@@ -138,9 +197,6 @@ export class QuizComponent {
     for (let field of question.questionFields) {
       this.form.controls[field.name].setValue(field.value);
     }
-
-    var element = document.getElementById("field-" + question.answerFields[0].name);
-    console.log(element);
   }
 }
 
