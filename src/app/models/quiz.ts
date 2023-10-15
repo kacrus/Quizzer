@@ -11,7 +11,7 @@ export class QuizInfo {
     public data: number = 0;
     public passedCount: number = 0;
 
-    public last10QuestionSuccessRate: number | undefined;
+    public last5AnswerSuccessRate: number | undefined;
     public last10AnswerSuccessRate: number | undefined;
 }
 

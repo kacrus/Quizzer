@@ -58,7 +58,7 @@
                         <th class="fit-content">#</th>
                         <th>Quiz name</th>
                         <th class="fit-content">Passed</th>
-                        <th class="fit-content">L10 Q %</th>
+                        <th class="fit-content">L5 A %</th>
                         <th class="fit-content">L10 A %</th>
                         <th class="fit-content">Fields</th>
                         <th class="fit-content">Questions</th>
@@ -71,8 +71,10 @@
                         <td class="fit-content">{{i + 1}}</td>
                         <td>{{quiz.name}}</td>
                         <td class="fit-content">{{quiz.passedCount}}</td>
-                        <td class="fit-content" *ngIf="quiz.last10QuestionSuccessRate">{{quiz.last10QuestionSuccessRate |percent:'1.2-2' }}</td>
-                        <td class="fit-content" *ngIf="!quiz.last10QuestionSuccessRate"><i class="bi bi-question"></i></td>
+        
+                        <td class="fit-content" *ngIf="quiz.last5AnswerSuccessRate">{{quiz.last5AnswerSuccessRate |percent:'1.2-2' }}</td>
+                        <td class="fit-content" *ngIf="!quiz.last5AnswerSuccessRate"><i class="bi bi-question"></i></td>
+                        
                         <td class="fit-content" *ngIf="quiz.last10AnswerSuccessRate">{{quiz.last10AnswerSuccessRate |percent:'1.2-2' }}</td>
                         <td class="fit-content" *ngIf="!quiz.last10AnswerSuccessRate"><i class="bi bi-question"></i></td>
                         <td class="fit-content">{{quiz.fields}}</td>

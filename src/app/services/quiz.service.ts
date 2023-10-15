@@ -128,70 +128,47 @@ export class QuizService {
     }
 
     for(let r of reports) {
+      r.date = new Date(r.date);
       if(r.id === report.id){
         return;
       }
     }
 
+    reports.push(report);
+
+    console.log(reports);
+    localStorage.setItem(reportId, JSON.stringify(reports));
+
+    reports.sort((a, b) => b.date.getTime() - a.date.getTime());
+
+
     let shortStr = localStorage.getItem(shortId);
     let short: QuizShort = JSON.parse(shortStr!);
 
-    let correctAnswersCount = this.getAnswersCount(report.questions, a => a.correctAnswer === a.userAnswer);
-    let wrongAnswersCount = this.getAnswersCount(report.questions, a => a.correctAnswer !== a.userAnswer);
+    let correctAnswers = [];
+    let wrongAnswers = [];
 
-    let correctQuestionsCount = this.getQuestionsCount(report.questions, a => a.correctAnswer === a.userAnswer);
-    let wrongQuestionsCount = report.questions.length - correctQuestionsCount;
+    for(let i = 0; i < 10 && i < reports.length; i++){
+      let correct = this.getAnswersCount(reports[i].questions, a => a.correctAnswer === a.userAnswer);
+      let wrong = this.getAnswersCount(reports[i].questions, a => a.correctAnswer !== a.userAnswer);
+      correctAnswers.push(correct);
+      wrongAnswers.push(wrong);
 
-    if(!short.lastCorrectAnswers) {
-      short.lastCorrectAnswers = [];
+      console.log(reports[i].date, correct, wrong)  ;
     }
 
-    if(!short.lastWrongAnswers) {
-      short.lastWrongAnswers = [];
-    }
+    console.log(correctAnswers, wrongAnswers);
 
-    if(!short.lastCorrectQuestions) {
-      short.lastCorrectQuestions = [];
-    }
+    short.last10AnswerSuccessRate = this.getSuccessRate(correctAnswers, wrongAnswers, 10);
+    short.last5AnswerSuccessRate = this.getSuccessRate(correctAnswers, wrongAnswers, 5);
 
-    if(!short.lastWrongQuestions) {
-      short.lastWrongQuestions = [];
-    }
+    console.log(short);
 
     short.passedCount++;
-
-    short.lastCorrectAnswers.push(correctAnswersCount);
-    short.lastWrongAnswers.push(wrongAnswersCount);
-
-    short.lastCorrectQuestions.push(correctQuestionsCount);
-    short.lastWrongQuestions.push(wrongQuestionsCount);
 
     localStorage.setItem(shortId, JSON.stringify(short));
 
 
-
-    reports.push(report);
-
-    localStorage.setItem(reportId, JSON.stringify(reports));
-  }
-
-  private getQuestionsCount(questions: QuizPassedReportQuestion[], predicate: (a: QuizPassedReportAnswerField) => boolean): number {
-    let count = 0;
-    for(let i = 0; i < questions.length; i++){
-      let correct = true;
-      for(let j = 0; j < questions[i].answerFields.length; j++){
-        if(!predicate(questions[i].answerFields[j])){
-          correct = false;
-          break;
-        }
-      }
-
-      if(correct){
-        count++;
-      }
-    }
-
-    return count;
   }
 
   private getAnswersCount(questions: QuizPassedReportQuestion[], predicate: (a: QuizPassedReportAnswerField) => boolean): number {
@@ -256,8 +233,8 @@ export class QuizService {
     info.fields = quiz.fields;
     info.data = quiz.data;
     info.passedCount = quiz.passedCount;
-    info.last10AnswerSuccessRate = this.getSuccessRate(quiz.lastCorrectAnswers, quiz.lastWrongAnswers, 10);
-    info.last10QuestionSuccessRate = this.getSuccessRate(quiz.lastCorrectQuestions, quiz.lastWrongQuestions, 10);
+    info.last10AnswerSuccessRate = quiz.last10AnswerSuccessRate;
+    info.last5AnswerSuccessRate = quiz.last5AnswerSuccessRate;
 
     currentFolder.quizzes.push(info);
 
@@ -282,19 +259,18 @@ export class QuizService {
     }
 
     let correctSum = 0;
-    for(let i = correct.length - 1; i >= 0 && i >= correct.length - count; i--){
-      correctSum += correct[i];
-    }
-
     let wrongSum = 0;
-    for(let i = wrong.length - 1; i >= 0 && i >= wrong.length - count; i--){
+    for(let i = 0; i < count && i < correct.length; i++){
+      correctSum += correct[i];
       wrongSum += wrong[i];
     }
-
+    
     let sum = correctSum + wrongSum;
     if(sum === 0){
       return undefined;
     }
+
+    console.log(correctSum, wrongSum, sum);
 
     return correctSum / sum;
   }
@@ -383,11 +359,8 @@ class QuizShort {
 
   public passedCount: number = 0;
 
-  public lastCorrectAnswers: number[] = [];
-  public lastWrongAnswers: number[] = [];
-
-  public lastCorrectQuestions: number[] = [];
-  public lastWrongQuestions: number[] = [];
+  public last5AnswerSuccessRate: number | undefined;
+  public last10AnswerSuccessRate: number | undefined;
 }
 
 class QuizData {
