@@ -114,6 +114,9 @@ export class PostponedOperationsService {
         });
         return;
       }
+
+      observer.next();
+      observer.complete();
     });
   }
 }
