@@ -22,7 +22,7 @@ export class LoginService {
     url += 'scope=' + this.scopes.join('+');
     url += '&client_id=' + encodeURIComponent(this.clientId);
     url += '&response_type=token'
-    url += '&redirect_uri=' + `${location.protocol}//${location.host}/callback`;
+    url += '&redirect_uri=' + `${location.protocol}//${location.host}/Quizzer/callback`;
 
     window.location.href = url;
   }
