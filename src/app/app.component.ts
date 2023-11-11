@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { LoginService } from './services/login.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -10,6 +11,7 @@ export class AppComponent {
   title = 'quizzer';
 
   constructor(
+    private router: Router,
     private loginService: LoginService
   ) { }
 
@@ -27,5 +29,6 @@ export class AppComponent {
 
   protected logout() {
     sessionStorage.clear();
+    this.router.navigate(['/login']);
   }
 }
