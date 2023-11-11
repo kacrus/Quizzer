@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Quiz } from 'src/app/models/quiz';
 import { PostponedOperationsService } from 'src/app/services/postponed-operations.service';
-import { QuizService } from 'src/app/services/quiz.service';
 import { QuizzesService } from 'src/app/services/quizzes.service';
 
 @Component({

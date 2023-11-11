@@ -1,6 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FieldType, Quiz } from 'src/app/models/quiz';
-import { QuizService } from 'src/app/services/quiz.service';
 import { v4 as uuid } from 'uuid';
 
 @Component({
@@ -21,7 +20,6 @@ export class QuizDataEditComponent {
   protected rows: any[] = [];
 
   constructor(
-    private quizService: QuizService,
   ) { }
 
   ngOnInit(): void {

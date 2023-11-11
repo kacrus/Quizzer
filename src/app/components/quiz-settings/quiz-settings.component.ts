@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { combineLatest, combineLatestAll } from 'rxjs';
 import { QuizPassedReport } from 'src/app/models/quiz';
-import { QuizService } from 'src/app/services/quiz.service';
 import { QuizzesService } from 'src/app/services/quizzes.service';
 
 @Component({
