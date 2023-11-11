@@ -88,6 +88,20 @@ export class QuizzesService {
     });
   }
 
+  public createMain(): Observable<void> {
+    return new Observable<void>(observer => {
+      this.driveService.createOrGetSpreadsheet(this.mainFile, ["Quizzes"]).subscribe({
+        next: () => {
+          observer.next();
+          observer.complete();
+        },
+        error: (error: any) => {
+          observer.error(error);
+        }
+      });
+    });
+  }
+
   public createQuiz(quiz: Quiz): Observable<Quiz> {
     return new Observable<Quiz>(observer => {
       this.driveService
@@ -271,6 +285,7 @@ export class QuizzesService {
 
           },
           error: (error: any) => {
+            observer.error(error);
             console.log(error);
           }
         });

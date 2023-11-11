@@ -6,6 +6,7 @@ import { QuizEditComponent } from './components/quiz-edit/quiz-edit.component';
 import { QuizComponent } from './components/quiz/quiz.component';
 import { QuizSettingsComponent } from './components/quiz-settings/quiz-settings.component';
 import { CallbackComponent } from './components/callback/callback.component';
+import { LoginComponent } from './components/login/login.component';
 
 const routes: Routes = [
   { path: "", component: DashboardComponent },
@@ -13,7 +14,8 @@ const routes: Routes = [
   { path: "quiz/edit/:id", component: QuizEditComponent },
   { path: "quiz/:id", component: QuizComponent },
   { path: "quiz/:id/settings", component: QuizSettingsComponent },
-  { path: "callback", component: CallbackComponent}
+  { path: "callback", component: CallbackComponent},
+  { path: "login", component: LoginComponent },
 ];
 
 @NgModule({

@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthTokenService } from 'src/app/services/auth-token.service';
+import { PostponedOperationsService } from 'src/app/services/postponed-operations.service';
 
 @Component({
   selector: 'app-callback',
@@ -13,6 +14,7 @@ export class CallbackComponent {
 
   constructor(
     httpClient: HttpClient,
+    postpondedOperationsService: PostponedOperationsService,
     route: ActivatedRoute,
     router: Router,
     accessTokenService: AuthTokenService) {
@@ -40,7 +42,16 @@ export class CallbackComponent {
         }
       });
 
-      router.navigate(['/']);
+      postpondedOperationsService.executePostponed()
+      .subscribe({
+        next: () => {
+          router.navigate(['/']);
+        },
+        error: (err) => {
+          router.navigate(['/']);
+          console.log(err);
+        }
+      });
     }
   }
 }

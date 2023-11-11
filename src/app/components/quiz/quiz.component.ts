@@ -2,6 +2,7 @@ import { Component, ElementRef, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Field, QuizPassedReport, QuizPassedReportAnswerField, QuizPassedReportQuestion, QuizPassedReportQuestionField } from 'src/app/models/quiz';
+import { PostponedOperationsService } from 'src/app/services/postponed-operations.service';
 import { QuizService } from 'src/app/services/quiz.service';
 import { QuizzesService } from 'src/app/services/quizzes.service';
 import { v4 as uuid } from 'uuid';
@@ -42,6 +43,7 @@ export class QuizComponent {
   constructor(
     route: ActivatedRoute,
     private quizzesService: QuizzesService,
+    private postpondedOperationsService: PostponedOperationsService,
     private quizService: QuizService,
     private router: Router
   ) {
@@ -149,7 +151,12 @@ export class QuizComponent {
       .saveReport(report)
       .subscribe({
         next: () => { },
-        error: err => console.error(err)
+        error: err => {
+          if ([401, 403].indexOf(err.status) !== -1) {
+            this.postpondedOperationsService.postponeSaveReport(report);
+          }
+          console.error(err)
+        }
       });
   }
 

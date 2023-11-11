@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FieldType, Quiz } from 'src/app/models/quiz';
+import { PostponedOperationsService } from 'src/app/services/postponed-operations.service';
 import { QuizzesService } from 'src/app/services/quizzes.service';
 import { v4 as uuid } from 'uuid';
 
@@ -16,6 +17,7 @@ export class QuizCreateComponent {
 
   constructor(
     private quizzesService: QuizzesService,
+    private postponedOperationsService: PostponedOperationsService,
     private activatedRoute: ActivatedRoute,
     private router: Router,
   ) {
@@ -44,7 +46,11 @@ export class QuizCreateComponent {
           this.router.navigate(["/"], { queryParams: { path: this.group } });
         },
         error: (error: any) => {
-          this.isSaving = false;  
+          if ([401, 403].indexOf(error.status) !== -1) {
+            this.postponedOperationsService.postponeCreateQuiz(quiz);
+          }
+          
+          this.isSaving = false;
           console.error(error);
         }
       });

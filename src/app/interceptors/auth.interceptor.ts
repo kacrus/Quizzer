@@ -3,15 +3,18 @@ import {
   HttpRequest,
   HttpHandler,
   HttpEvent,
-  HttpInterceptor
+  HttpInterceptor,
+  HttpResponse
 } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, catchError, throwError } from 'rxjs';
 import { AuthTokenService } from '../services/auth-token.service';
+import { Router } from '@angular/router';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
 
   constructor(
+    private router: Router,
     private authTokenService: AuthTokenService
   ) {}
 
@@ -23,6 +26,16 @@ export class AuthInterceptor implements HttpInterceptor {
     });
     
     request.headers.append('Authorization', 'Bearer ' + this.authTokenService.getAccessToken());
-    return next.handle(authReq);
+    return next.handle(authReq) 
+      .pipe(catchError(err => {
+        if ([401,   403].indexOf(err.status) !== -1) { 
+            sessionStorage.clear();
+            this.router.navigate(['/login']);
+            console.error("401 error", request);
+        }
+
+        const error = err || err.statusText;
+        return throwError(error);
+    }))
   }
 }

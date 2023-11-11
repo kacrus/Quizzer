@@ -1,7 +1,9 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 import { Observable, forkJoin } from 'rxjs';
 import { Folder, Quiz, QuizInfo } from 'src/app/models/quiz';
+import { PostponedOperationsService } from 'src/app/services/postponed-operations.service';
 import { QuizSerializationService } from 'src/app/services/quiz.serialization.service';
 import { QuizService } from 'src/app/services/quiz.service';
 import { QuizzesService } from 'src/app/services/quizzes.service';
@@ -17,10 +19,12 @@ export class DashboardComponent {
   protected previousFolders: Folder[] = [];
 
   constructor(
+    private toastrService: ToastrService,
     private activatedRoute: ActivatedRoute,
     private quizService: QuizService,
     private quizzesService: QuizzesService,
     private quizSerializationService: QuizSerializationService,
+    private postpondedOperationsService: PostponedOperationsService,
     private router: Router) { }
 
   ngOnInit(): void {
@@ -98,11 +102,16 @@ export class DashboardComponent {
     this.quizzesService.deleteQuiz(quiz.id)
       .subscribe({
         next: () => {
+          this.toastrService.success(`Quiz "${quiz.name}" deleted.`);
           this.refreshStructure();
         },
         error: (err) => {
-          // todo: replace with a toast
-          console.error(err);
+          if ([401, 403].indexOf(err.status) !== -1) {
+            this.postpondedOperationsService.postponeDeleteQuiz(quiz.id);
+          }
+
+          this.toastrService.error(`Failed to delete quiz "${quiz.name}". `);
+          console.error(`Failed to delete quiz "${quiz.name}".`, err);
         }
       });
   }
@@ -163,20 +172,36 @@ export class DashboardComponent {
             }
           }
 
-          var observers: Observable<Quiz>[] = [];
-          for (let i = 0; i < quizzes.length; i++) {
-            let observer = this.quizzesService.createQuiz(quizzes[i]);
-            observers.push(observer);
-          }
-
-          forkJoin(observers).subscribe({
-            next: () => {
-              this.refreshStructure();
+          var uploadingToastr = this.toastrService.info(`Uploading quizzes...`, undefined, { disableTimeOut: true });
+          this.quizzesService.createMain().subscribe({
+            next: () => { 
+              var observers: Observable<Quiz>[] = [];
+              for (let i = 0; i < quizzes.length; i++) {
+                let observer = this.quizzesService.createQuiz(quizzes[i]);
+                observers.push(observer);
+              }
+    
+              forkJoin(observers).subscribe({
+                next: () => {
+                  uploadingToastr.toastRef.close();
+                  this.toastrService.success(`Quizzes uploaded successfully.`);
+                  this.refreshStructure();
+                },
+                error: (err) => {
+                  uploadingToastr.toastRef.close();
+                  this.toastrService.error(`Failed to upload quizzes.`);
+                  console.error(`Failed to upload quizzes.`, err);
+                }
+              });
             },
             error: (err) => {
-              console.error(err);
+              uploadingToastr.toastRef.close();
+              this.toastrService.error(`Failed to upload quizzes.`);
+              console.error(`Failed to upload quizzes.`, err);
             }
           });
+
+        
         },
         error: (err) => {
           console.error(err);
