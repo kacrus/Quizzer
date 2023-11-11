@@ -11,6 +11,9 @@ import { QuizEditComponent } from './components/quiz-edit/quiz-edit.component';
 import { QuizComponent } from './components/quiz/quiz.component';
 import { BaseRouteReuseStrategy, RouteReuseStrategy, RouterModule } from '@angular/router';
 import { QuizSettingsComponent } from './components/quiz-settings/quiz-settings.component';
+import { CallbackComponent } from './components/callback/callback.component';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
+import { AuthInterceptor } from './interceptors/auth.interceptor';
 
 class NoReuseStrategy extends BaseRouteReuseStrategy {
   override shouldReuseRoute() {
@@ -27,7 +30,8 @@ class NoReuseStrategy extends BaseRouteReuseStrategy {
     DashboardComponent,
     QuizEditComponent,
     QuizComponent,
-    QuizSettingsComponent, 
+    QuizSettingsComponent,
+    CallbackComponent, 
   ],
   imports: [
     BrowserModule,
@@ -35,9 +39,15 @@ class NoReuseStrategy extends BaseRouteReuseStrategy {
     RouterModule,
     FormsModule,
     ReactiveFormsModule,
+    HttpClientModule
   ],
   providers: [
-    { provide: RouteReuseStrategy, useClass: NoReuseStrategy }
+    { provide: RouteReuseStrategy, useClass: NoReuseStrategy },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    }
   ],
   bootstrap: [AppComponent]
 })

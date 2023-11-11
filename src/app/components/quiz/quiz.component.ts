@@ -3,6 +3,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Field, QuizPassedReport, QuizPassedReportAnswerField, QuizPassedReportQuestion, QuizPassedReportQuestionField } from 'src/app/models/quiz';
 import { QuizService } from 'src/app/services/quiz.service';
+import { QuizzesService } from 'src/app/services/quizzes.service';
 import { v4 as uuid } from 'uuid';
 
 @Component({
@@ -40,11 +41,12 @@ export class QuizComponent {
 
   constructor(
     route: ActivatedRoute,
+    private quizzesService: QuizzesService,
     private quizService: QuizService,
     private router: Router
   ) {
     route.params.subscribe(params => {
-      quizService.getQuiz(params["id"]).subscribe({
+      quizzesService.getQuiz(params["id"]).subscribe({
         next: quiz => {
           this.quizId = quiz?.id ?? "";
           this.showAnswers = route.snapshot.queryParams["showAnswers"] == "true";
@@ -124,11 +126,12 @@ export class QuizComponent {
     report.quizId = this.quizId;
     report.id = uuid();
     report.fields = this.fields;
+
     report.questions = this.questions.map(q => {
       let question = new QuizPassedReportQuestion();
       question.questionFields = q.questionFields.map(qf => {
         let field = new QuizPassedReportQuestionField();
-        field.fieldId = this.fields.filter(f => f.name == qf.name)[0].id; 
+        field.fieldId = this.fields.filter(f => f.name == qf.name)[0].id;
         field.name = qf.value;
         return field;
       });
@@ -142,10 +145,12 @@ export class QuizComponent {
       return question;
     });
 
-    this.quizService.saveReport(report).subscribe({
-      next: () => { },
-      error: err => console.error(err)
-    });
+    this.quizzesService
+      .saveReport(report)
+      .subscribe({
+        next: () => { },
+        error: err => console.error(err)
+      });
   }
 
 

@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FieldType, Quiz } from 'src/app/models/quiz';
+import { QuizzesService } from 'src/app/services/quizzes.service';
 import { v4 as uuid } from 'uuid';
 
 @Component({
@@ -11,8 +12,10 @@ import { v4 as uuid } from 'uuid';
 export class QuizCreateComponent {
   protected quiz: Quiz;
   protected group: string = "";
+  protected isSaving: boolean = false;
 
   constructor(
+    private quizzesService: QuizzesService,
     private activatedRoute: ActivatedRoute,
     private router: Router,
   ) {
@@ -28,12 +31,23 @@ export class QuizCreateComponent {
     this.quiz.groups = this.group.split("/").filter(g => g.length > 0);
 
     this.quiz.fields.push({ id: uuid(), name: "Field #1", type: FieldType.Text });
-    this.quiz.fields.push({ id:uuid(), name: "Field #2", type: FieldType.Text });
+    this.quiz.fields.push({ id: uuid(), name: "Field #2", type: FieldType.Text });
 
     this.quiz.data.push({ "Field #1": "value 1", "Field #2": "value 2" });
   }
 
-  public onQuizSaved(): void {
-    this.router.navigate(["/"], { queryParams: { path: this.group }});
+  public onQuizSaved(quiz: Quiz): void {
+    this.isSaving = true;
+    this.quizzesService.createQuiz(quiz)
+      .subscribe({
+        next: (quiz: Quiz) => {
+          this.router.navigate(["/"], { queryParams: { path: this.group } });
+        },
+        error: (error: any) => {
+          this.isSaving = false;  
+          console.error(error);
+        }
+      });
+
   }
 }

@@ -1,13 +1,18 @@
 <div class="container">
-    <div class="row justify-content-md-center mt-5">
+    <div class="row justify-content-md-center mt-5" *ngIf="!currentFolder">
+        <div class="col-8 text-center">
+            Loading...
+        </div>
+    </div>
+    <div class="row justify-content-md-center mt-5" *ngIf="currentFolder">
         <div class="col-8 d-flex flex-row-reverse">
             <button class="btn btn-success btn-sm-4-5" (click)="createNewQuizClick()">
                 <i class="bi bi-plus-lg"></i>
             </button>
 
 
-            <button class="btn btn-success btn-sm-4-5 me-1" (click)="downloadQuizes()"
-                title="{{previousFolders.length ? 'Works only from root folder':''}}" style="pointer-events: auto;">
+            <button class="btn btn-success btn-sm-4-5 me-1" (click)="downloadQuizes()" title="{{previousFolders.length ? 'Works only from root folder':''}}"
+                style="pointer-events: auto;">
                 <i class="bi bi-download"></i>
             </button>
 
@@ -19,7 +24,7 @@
         </div>
     </div>
 
-    <div class="row justify-content-md-center">
+    <div class="row justify-content-md-center" *ngIf="currentFolder">
         <div class="col-8">
             <div *ngIf="currentFolder?.subFolders">
                 <table>
@@ -71,10 +76,10 @@
                         <td class="fit-content">{{i + 1}}</td>
                         <td>{{quiz.name}}</td>
                         <td class="fit-content">{{quiz.passedCount}}</td>
-        
+
                         <td class="fit-content" *ngIf="quiz.last5AnswerSuccessRate">{{quiz.last5AnswerSuccessRate |percent:'1.2-2' }}</td>
                         <td class="fit-content" *ngIf="!quiz.last5AnswerSuccessRate"><i class="bi bi-question"></i></td>
-                        
+
                         <td class="fit-content" *ngIf="quiz.last10AnswerSuccessRate">{{quiz.last10AnswerSuccessRate |percent:'1.2-2' }}</td>
                         <td class="fit-content" *ngIf="!quiz.last10AnswerSuccessRate"><i class="bi bi-question"></i></td>
                         <td class="fit-content">{{quiz.fields}}</td>

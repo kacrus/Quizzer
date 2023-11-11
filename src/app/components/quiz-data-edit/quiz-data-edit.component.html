@@ -3,13 +3,13 @@
     <tr class="no-border">
       <td class="fit-content align-middle">Quiz name: </td>
       <td>
-        <input type="text" class="form-control form-control-sm" [(ngModel)]="quizName" />
+        <input type="text" class="form-control form-control-sm" [(ngModel)]="quizName" [disabled]="isSaving"   />
       </td>
     </tr>
     <tr class="no-border">
       <td class="fit-content align-middle">Quiz group: </td>
       <td>
-        <input type="text" class="form-control form-control-sm" [(ngModel)]="quizGroup" />
+        <input type="text" class="form-control form-control-sm" [(ngModel)]="quizGroup" [disabled]="isSaving" />
       </td>
     </tr>
   </tbody>
@@ -21,14 +21,14 @@
         <th class="fit-content"></th>
         <th *ngFor="let column of columns">
             <div class="input-group">
-                <button class="input-group-text" id="{{column.id}}" [disabled]="columns.length <= 2" (click)="deleteColumn(column)">
+                <button class="input-group-text" id="{{column.id}}" [disabled]="columns.length <= 2" (click)="deleteColumn(column)" [disabled]="isSaving">
                     <i class="bi bi-x-lg icon" [class.text-danger]="columns.length > 2" [class.text-muted]="columns.length <= 2"></i>
                 </button>
-                <input type="text" class="form-control form-control-sm" [attr.aria-describedby]="column.id" [(ngModel)]="column.name">
+                <input type="text" class="form-control form-control-sm" [attr.aria-describedby]="column.id" [(ngModel)]="column.name" [disabled]="isSaving" >
             </div>
         </th>
         <th class="fit-content">
-            <button class="btn btn-success btn-sm" (click)="addColumn()" title="Add new column">
+            <button class="btn btn-success btn-sm" (click)="addColumn()" title="Add new column" [disabled]="isSaving">
               <i class="bi bi-arrow-bar-right"></i>
             </button>
         </th>
@@ -39,11 +39,11 @@
       <tr *ngFor="let row of rows; let i = index">
         <td class="fit-content align-middle">{{ i + 1 }}</td>
         <td *ngFor="let column of columns">
-            <input type="text" class="form-control form-control-sm" [attr.aria-describedby]="column.id" [(ngModel)]="row[column.id]" />
+            <input type="text" class="form-control form-control-sm" [attr.aria-describedby]="column.id" [(ngModel)]="row[column.id]" [disabled]="isSaving" />
         </td>
         
         <td class="fit-content">
-            <button class="btn btn-danger btn-sm" title="Delete row" (click)="deleteRow(row)">
+            <button class="btn btn-danger btn-sm" title="Delete row" (click)="deleteRow(row)" [disabled]="isSaving">
                 <i class="bi bi-x-lg"></i>
             </button>
         </td>
@@ -51,11 +51,16 @@
 
       <tr>
         <td [attr.colspan]="columns.length + 2" class="no-border">
-          <button class="btn btn-success btn-sm float-end" title="Save" (click)="saveFile()" [disabled]="!canSave()">
+          <button class="btn btn-success btn-sm float-end" title="Save" (click)="saveFile()" [disabled]="!canSave()" *ngIf="!isSaving">
             <i class="bi bi-floppy"></i>
           </button>
+          <button class="btn btn-success btn-sm float-end" title="Saving..." [disabled]="true" *ngIf="isSaving">
+            <div class="spinner-border spinner-border-sm" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </button>
 
-          <button class="btn btn-success btn-sm float-end me-2" title="Add row" (click)="addRow()">
+          <button class="btn btn-success btn-sm float-end me-2" title="Add row" (click)="addRow()" [disabled]="isSaving">
               <i class="bi bi-arrow-bar-down"></i>
           </button>
         </td>

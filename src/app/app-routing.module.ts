@@ -5,6 +5,7 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { QuizEditComponent } from './components/quiz-edit/quiz-edit.component';
 import { QuizComponent } from './components/quiz/quiz.component';
 import { QuizSettingsComponent } from './components/quiz-settings/quiz-settings.component';
+import { CallbackComponent } from './components/callback/callback.component';
 
 const routes: Routes = [
   { path: "", component: DashboardComponent },
@@ -12,10 +13,11 @@ const routes: Routes = [
   { path: "quiz/edit/:id", component: QuizEditComponent },
   { path: "quiz/:id", component: QuizComponent },
   { path: "quiz/:id/settings", component: QuizSettingsComponent },
+  { path: "callback", component: CallbackComponent}
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes, { useHash: true })],
+  imports: [RouterModule.forRoot(routes, { useHash: false })],
   exports: [RouterModule]
 })
 export class AppRoutingModule { }

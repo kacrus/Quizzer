@@ -10,6 +10,7 @@ import { v4 as uuid } from 'uuid';
 })
 export class QuizDataEditComponent {
   @Input({ required: true }) public quiz!: Quiz;
+  @Input() public isSaving: boolean = false;
   @Output() public onQuizSaved: EventEmitter<Quiz> = new EventEmitter();
 
   private readonly separator: string = "/";
@@ -95,16 +96,7 @@ export class QuizDataEditComponent {
 
   public saveFile(): void {
     let quiz: Quiz = this.getQuizFromUi();
-    this.quizService.save([quiz])
-      .subscribe({
-        next: (quizzes: Quiz[]) => {
-          this.onQuizSaved.emit(quizzes[0]);
-        },
-        error: (err: any) => {
-          // todo: replace with toast
-          console.log("Quiz saved");
-        }
-      });
+    this.onQuizSaved.emit(quiz);
   }
 
   public downloadFile(): void {

@@ -1,5 +1,17 @@
-<nav class="navbar navbar-dark bg-dark justify-content-center">
-    <a class="navbar-brand" href="#">Quizzer</a>
-</nav>
+<nav class="navbar navbar-expand navbar-dark bg-dark justify-content-between">
+    <a class="navbar-brand ms-2" href="#">Quizzer</a>
+    
+    <div class="me-2" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item active">
+          <a class="nav-link" href="#" *ngIf="!isLoggedIn()" (click)="onLogin();">Login</a>
+          <span class="text-white" *ngIf="isLoggedIn()">
+            {{getUserName()}}
+            <a class="underscore text-white" (click)="logout()">Logout</a>
+          </span>
+        </li>
+      </ul>
+    </div>
+  </nav>
 
 <router-outlet></router-outlet>

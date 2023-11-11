@@ -1,8 +1,10 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Observable, forkJoin } from 'rxjs';
 import { Folder, Quiz, QuizInfo } from 'src/app/models/quiz';
 import { QuizSerializationService } from 'src/app/services/quiz.serialization.service';
 import { QuizService } from 'src/app/services/quiz.service';
+import { QuizzesService } from 'src/app/services/quizzes.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -17,12 +19,13 @@ export class DashboardComponent {
   constructor(
     private activatedRoute: ActivatedRoute,
     private quizService: QuizService,
+    private quizzesService: QuizzesService,
     private quizSerializationService: QuizSerializationService,
     private router: Router) { }
 
   ngOnInit(): void {
     this.activatedRoute.queryParams.subscribe(params => {
-      this.quizService.getRootFolder()
+      this.quizzesService.getQuizzesStructure()
         .subscribe(folder => {
           this.rootFolder = folder;
           this.currentFolder = folder;
@@ -92,7 +95,7 @@ export class DashboardComponent {
       return;
     }
 
-    this.quizService.deleteQuiz(quiz.id)
+    this.quizzesService.deleteQuiz(quiz.id)
       .subscribe({
         next: () => {
           this.refreshStructure();
@@ -160,16 +163,20 @@ export class DashboardComponent {
             }
           }
 
+          var observers: Observable<Quiz>[] = [];
           for (let i = 0; i < quizzes.length; i++) {
-            this.quizService.save(quizzes).subscribe({
-              next: () => {
-                this.refreshStructure();
-              },
-              error: (err) => {
-                console.error(err);
-              }
-            });
+            let observer = this.quizzesService.createQuiz(quizzes[i]);
+            observers.push(observer);
           }
+
+          forkJoin(observers).subscribe({
+            next: () => {
+              this.refreshStructure();
+            },
+            error: (err) => {
+              console.error(err);
+            }
+          });
         },
         error: (err) => {
           console.error(err);
@@ -181,7 +188,7 @@ export class DashboardComponent {
   }
 
   private refreshStructure(): void {
-    this.quizService.getRootFolder()
+    this.quizzesService.getQuizzesStructure()
       .subscribe(folder => {
         let path = this.getCurrentPath();
 
