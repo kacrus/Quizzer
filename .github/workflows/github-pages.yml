@@ -31,7 +31,7 @@ jobs:
         run: npm run build:github-pages
       - name: Copy 404.html
         run: cp ./dist/quizzer/index.html ./dist/quizzer/404.html
-      - nmae: Copy 200
+      - name: Copy 200
         run: cp ./dist/quizzer/index.html ./dist/quizzer/200.html
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
