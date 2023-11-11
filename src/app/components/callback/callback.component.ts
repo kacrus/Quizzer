@@ -27,31 +27,30 @@ export class CallbackComponent {
       let accessToken = p.get('access_token');
 
       accessTokenService.setAccessToken(accessToken!);
-      console.log(p.get('expires_in'));
-      console.log(p.get('id_token'));
-
-      httpClient.get('https://www.googleapis.com/oauth2/v2/userinfo').subscribe( {
+      httpClient.get('https://www.googleapis.com/oauth2/v2/userinfo').subscribe({
         next: (data: any) => {
-          console.log(data);
           sessionStorage.setItem('user_name', data.name);
           sessionStorage.setItem('user_email', data.email);
           sessionStorage.setItem('user_id', data.id);
+
+          postpondedOperationsService.executePostponed()
+            .subscribe({
+              next: () => {
+                router.navigate(['/']);
+              },
+              error: (err) => {
+                router.navigate(['/']);
+                console.log(err);
+              }
+            });
         },
         error: (err) => {
+          router.navigate(['/']);
           console.log(err);
         }
       });
 
-      postpondedOperationsService.executePostponed()
-      .subscribe({
-        next: () => {
-          router.navigate(['/']);
-        },
-        error: (err) => {
-          router.navigate(['/']);
-          console.log(err);
-        }
-      });
+
     }
   }
 }
