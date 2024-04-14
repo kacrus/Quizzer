@@ -38,10 +38,6 @@ export class QuizSettingsComponent {
           return;
         }
 
-        reports.sort((a, b) => {
-          return a.date.getTime() - b.date.getTime();
-        });
-
         let firstStats = new ReportStats();
         firstStats.date = reports[0].date;
         firstStats.correctAnswers = this.countCorrectAnswers(reports[0]);

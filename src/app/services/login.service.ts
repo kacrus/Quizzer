@@ -1,29 +1,38 @@
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { LoginResult } from '../models/login';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LoginService {
-  private scopes: string[] = [
-    "https%3A//www.googleapis.com/auth/drive.metadata.readonly", 
-    "https://www.googleapis.com/auth/spreadsheets",
-    "https://www.googleapis.com/auth/drive.file", 
-    "https://www.googleapis.com/auth/drive",
-    "https://www.googleapis.com/auth/userinfo.profile"
-  ];
 
-  private clientId: string = '367484121856-a2tqla95e0c3ikmgqcji67cto4288u3c.apps.googleusercontent.com';
+  constructor(
+    private httpClient: HttpClient
+  ) { }
 
-  constructor() { }
+  login(endpointURL: string, email: string, password: string) : Observable<LoginResult> {
+    return new Observable<LoginResult>(observer => {
+      this.httpClient.post(endpointURL, {
+        "username": email,
+        "password": password
+      }).subscribe({
+        next: (response: any) => {
+          let result = new LoginResult();
+          result.access_token = response.access_token;
+          result.email = email;
+          result.refresh_token = response.refresh_token;
 
-  public login() {
-    let url = 'https://accounts.google.com/o/oauth2/v2/auth?';
-
-    url += 'scope=' + this.scopes.join('+');
-    url += '&client_id=' + encodeURIComponent(this.clientId);
-    url += '&response_type=token'
-    url += '&redirect_uri=' + `${location.protocol}//${location.host}/Quizzer/callback`;
-
-    window.location.href = url;
+          observer.next(result);
+        },
+        error: (err: any) => {
+          observer.error(err);
+        },
+        complete: () => {
+          observer.complete();
+        }
+      })
+    });
   }
 }

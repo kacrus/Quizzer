@@ -1,8 +1,30 @@
 <div class="container">
     <div class="row mt-5">
-        <div class="col-5"></div>
-        <div class="col-2">
-            <button class="btn btn-primary w-100" (click)="login()">Login</button>
+        <div class="col-3">
+        </div>
+
+        <div class="col-6">
+            <div class="mb-3">
+                <input type="text" [(ngModel)]="loginEndpointURL" class="form-control form-control-lg" id="login-endpoint-url-input" placeholder="Login Endpoint URL">
+            </div>
+            <div class="mb-3">
+                <input type="text" [(ngModel)]="apiEndpointURL" class="form-control form-control-lg" id="api-endpoint-url-input" placeholder="API Endpoint URL">
+            </div>
+            <div class="mb-3">
+                <input type="text" [(ngModel)]="dataSource" class="form-control form-control-lg" id="data-source-input" placeholder="Data Source">
+            </div>
+            <div class="mb-3">
+                <input type="text" [(ngModel)]="database" class="form-control form-control-lg" id="database-input" placeholder="Database">
+            </div>
+            <div class="mb-3">
+                <input type="email" [(ngModel)]="email" class="form-control form-control-lg" id="email-input" placeholder="Email">
+            </div>
+            <div class="mb-3">
+                <input type="password"  [(ngModel)]="password" class="form-control form-control-lg" id="password-input" placeholder="Password">
+            </div>
+            <div class="mb-3 d-flex flex-row-reverse">
+                <button class="btn btn-primary btn-lg" (click)="onLogin();">Login</button>
+            </div>
         </div>
     </div>
 </div>

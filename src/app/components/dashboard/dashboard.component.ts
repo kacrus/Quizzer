@@ -173,26 +173,17 @@ export class DashboardComponent {
           }
 
           var uploadingToastr = this.toastrService.info(`Uploading quizzes...`, undefined, { disableTimeOut: true });
-          this.quizzesService.createMain().subscribe({
-            next: () => { 
-              var observers: Observable<Quiz>[] = [];
-              for (let i = 0; i < quizzes.length; i++) {
-                let observer = this.quizzesService.createQuiz(quizzes[i]);
-                observers.push(observer);
-              }
-    
-              forkJoin(observers).subscribe({
-                next: () => {
-                  uploadingToastr.toastRef.close();
-                  this.toastrService.success(`Quizzes uploaded successfully.`);
-                  this.refreshStructure();
-                },
-                error: (err) => {
-                  uploadingToastr.toastRef.close();
-                  this.toastrService.error(`Failed to upload quizzes.`);
-                  console.error(`Failed to upload quizzes.`, err);
-                }
-              });
+          var observers: Observable<Quiz>[] = [];
+          for (let i = 0; i < quizzes.length; i++) {
+            let observer = this.quizzesService.createQuiz(quizzes[i]);
+            observers.push(observer);
+          }
+
+          forkJoin(observers).subscribe({
+            next: () => {
+              uploadingToastr.toastRef.close();
+              this.toastrService.success(`Quizzes uploaded successfully.`);
+              this.refreshStructure();
             },
             error: (err) => {
               uploadingToastr.toastRef.close();
@@ -200,7 +191,6 @@ export class DashboardComponent {
               console.error(`Failed to upload quizzes.`, err);
             }
           });
-
         
         },
         error: (err) => {

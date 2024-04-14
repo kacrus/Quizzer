@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { LoginService } from './services/login.service';
 import { Router } from '@angular/router';
+import { AuthDataService } from './services/auth-data.service';
 
 @Component({
   selector: 'app-root',
@@ -12,23 +12,23 @@ export class AppComponent {
 
   constructor(
     private router: Router,
-    private loginService: LoginService
+    private authDataService: AuthDataService
   ) { }
 
   protected onLogin() {
-    this.loginService.login();
+    this.router.navigate(["/login"]);
   }
 
   protected isLoggedIn() {
-    return sessionStorage.getItem('access_token') !== null;
+    return this.authDataService.isLoggedIn();
   }
 
   protected getUserName() {
-    return sessionStorage.getItem('user_name');
+    return this.authDataService.getUserName();
   }
 
   protected logout() {
-    sessionStorage.clear();
+    this.authDataService.clear();
     this.router.navigate(['/login']);
   }
 }

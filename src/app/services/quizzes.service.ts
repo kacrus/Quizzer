@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { DriveService, SpreadSheet, SpreadsheetData } from './drive.service';
 import { Observable } from 'rxjs';
 import { Folder, Quiz, QuizInfo, QuizPassedReport } from '../models/quiz';
+import { ApiService } from './api.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,58 +11,35 @@ export class QuizzesService {
   private readonly mainFile = 'QuizzerHierarchy';
 
   constructor(
-    private driveService: DriveService
+    private driveService: DriveService,
+    private apiService: ApiService,
   ) { }
 
   public getQuiz(id: string): Observable<Quiz> {
     return new Observable<Quiz>(observer => {
-      this.getQuizzesStructure()
+      this.apiService.post("/action/findOne", {
+        "collection": "quizzes",
+        "filter": {
+          _id: id
+        }
+      })
         .subscribe({
-          next: (rootFolder: Folder) => {
-            let quizInfo = rootFolder.findQuiz(id);
-
-            this.driveService.getSpreadsheetData(id).subscribe({
-              next: (spreadsheetData: any) => {
-                let quiz = new Quiz(id);
-                quiz.name = quizInfo!.name;
-                quiz.groups = quizInfo!.groups;
-
-                let fieldIdsRow = spreadsheetData.sheets[0].data[0];
-                let fieldNamesRow = spreadsheetData.sheets[0].data[1];
-                let typesRow = spreadsheetData.sheets[0].data[2];
-
-                for (let i = 1; i < fieldIdsRow.length; i++) {
-                  let field = {
-                    id: fieldIdsRow[i],
-                    name: fieldNamesRow[i],
-                    type: typesRow[i]
-                  };
-
-                  quiz.fields.push(field);
-                }
-
-                for (let i = 3; i < spreadsheetData.sheets[0].data.length; i++) {
-                  let row = spreadsheetData.sheets[0].data[i];
-                  let question: any = {};
-                  for (let j = 1; j < row.length; j++) {
-                    question[fieldIdsRow[j]] = row[j];
-                  }
-
-                  quiz.data.push(question);
-                }
-
-                observer.next(quiz);
-                observer.complete();
-              },
-              error: (error: any) => {
-                console.log(error);
-              }
+          next: (response: any) => {
+            observer.next({
+              id: response.document._id,
+              name: response.document.name,
+              groups: response.document.parentId.split("/"),
+              fields: response.document.fields,
+              data: response.document.data,
             });
           },
-          error: (error: any) => {
-            observer.error(error);
+          error: (err: any) => {
+            observer.error(err);
+          },
+          complete: () => {
+            observer.complete();
           }
-        });
+        })
     });
   }
 
@@ -70,12 +48,30 @@ export class QuizzesService {
     rootFolder.name = 'Quizzer';
 
     return new Observable<Folder>(observer => {
-      this.driveService.getSpreadsheetData(this.mainFile).subscribe({
-        next: (spreadsheetData: any) => {
-          for (let data of spreadsheetData.sheets[0].data) {
-            if (data.length && data[0]) {
-              this.appendToFolder(rootFolder, data);
-            }
+      this.apiService.post("/action/find", {
+        "collection": "quizzes",
+        "filter": {
+        },
+        "projection": {
+          id: "$_id",
+          parentId: 1,
+          name: 1,
+          type: 1,
+          passed: 1,
+          last5: { $avg: "$last5"},
+          last10: { $avg: "$last10"},
+          fields: {
+            "$size": "$fields"
+          },
+          data: {
+            "$size": "$data"
+          }
+        }
+      }).subscribe({
+        next: (response: any) => {
+          console.log(response);
+          for (let item of response.documents) {
+            this.appendToFolder(rootFolder, item);
           }
 
           observer.next(rootFolder);
@@ -84,6 +80,7 @@ export class QuizzesService {
         error: (error: any) => {
           console.log(error);
         }
+
       });
     });
   }
@@ -104,192 +101,141 @@ export class QuizzesService {
 
   public createQuiz(quiz: Quiz): Observable<Quiz> {
     return new Observable<Quiz>(observer => {
-      this.driveService
-        .createOrGetSpreadsheet(this.mainFile, ["Quizzes"])
-        .subscribe({
-          next: (mainSpreadSheet: SpreadSheet) => {
-            this.driveService
-              .createOrGetSpreadsheet(quiz.id, ["Questions", "AnswerStats"])
-              .subscribe({
-                next: (spreadSheet: SpreadSheet) => {
-                  let quizDataToSave = this.getDataToSave(quiz);
-
-                  this.driveService
-                    .updateSpreadsheet(spreadSheet.fileId, "Questions", quizDataToSave)
-                    .subscribe({
-                      next: () => {
-                        this.driveService
-                          .appendValuesToSpreadsheet(mainSpreadSheet.fileId, "Quizzes", [[quiz.id, quiz.groups.join("/"), quiz.name, quiz.fields.length, quiz.data.length, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]])
-                          .subscribe({
-                            next: () => {
-                              observer.next(quiz);
-                              observer.complete();
-                            },
-                            error: (error: any) => {
-                              observer.error(error);
-                            }
-                          });
-                      },
-                      error: (error: any) => {
-                        observer.error(error);
-                      }
-                    });
-                },
-                error: (error: any) => {
-                  observer.error(error);
-                }
-              })
-          },
-          error: (error: any) => {
-            observer.error(error);
+      this.apiService.post("/action/updateOne", {
+        "collection": "quizzes",
+        "upsert": true,
+        "filter": {
+          "_id": quiz.id
+        },
+        "update": {
+          "$set": {
+            "parentId": quiz.groups.join("/"),
+            "name": quiz.name,
+            "fields": quiz.fields,
+            "data": quiz.data
           }
-        });
+        }
+      }).subscribe({
+        next: () => {
+          observer.next(quiz);
+        },
+        error: (err: any) => {
+          observer.error(err);
+        },
+        complete: () => {
+          observer.complete();
+        }
+      })
     });
   }
 
   public deleteQuiz(quizId: string): Observable<void> {
     return new Observable<void>(observer => {
-      this.driveService.getSpreadsheetData(this.mainFile)
-        .subscribe({
-          next: (spreadsheetData: SpreadsheetData) => {
-            for (let row of spreadsheetData.sheets[0].data) {
-              if (row[0] === quizId) {
-                row[0] = '';
-              }
-            }
-
-            this.driveService.updateSpreadsheetWithFileId(this.mainFile, "Quizzes", spreadsheetData.sheets[0].data)
-              .subscribe({
-                next: () => {
-                  observer.next();
-                  observer.complete();
-                },
-                error: (error: any) => {
-                  observer.error(error);
-                }
-              });
-          },
-          error: (error: any) => {
-            observer.error(error);
-          }
-        });
+      this.apiService.post("/action/deleteOne", {
+        "collection": "quizzes",
+        "filter": {
+          _id: quizId
+        }
+      }).subscribe({
+        next: () => {
+          observer.next();
+        },
+        error: (err: any) => {
+          observer.error(err);
+        },
+        complete: () => {
+          observer.complete();
+        }
+      });
     });
   }
 
   public saveReport(report: QuizPassedReport): Observable<void> {
     return new Observable<void>(observer => {
       let correct = report.questions.filter(q => q.answerFields.every(af => af.userAnswer === af.correctAnswer)).length / report.questions.length;
-      this.driveService.appendValuesToSpreadsheetWithFileId(report.quizId, "AnswerStats", [[JSON.stringify(report)]])
-        .subscribe({
-          next: () => {
-            this.driveService
-              .getSpreadsheetData(this.mainFile)
-              .subscribe({
-                next: (spreadsheetData: SpreadsheetData) => {
-                  for (let row of spreadsheetData.sheets[0].data) {
-                    if (row[0] === report.quizId) {
-                      ++row[5];
-                      for (let i = 15; i > 6; i--) {
-                        row[i] = row[i - 1];
-                      }
-
-                      row[6] = correct;
-                      break;
-                    }
-                  }
-
-                  this.driveService
-                    .updateSpreadsheetWithFileId(this.mainFile, "Quizzes", spreadsheetData.sheets[0].data)
-                    .subscribe({
-                      next: () => {
-                        observer.next();
-                        observer.complete();
-                      },
-                      error: (error: any) => {
-                        observer.error(error);
-                      }
-                    });
-                },
-                error: (error: any) => {
-                  observer.error(error);
-                }
-
-              });
+      this.apiService.post("/action/updateOne", {
+        "collection": "quizzes",
+        "filter": {
+          "_id": report.quizId
+        },
+        "update": {
+          "$inc": {
+            "passed": 1
           },
-          error: (error: any) => {
-            observer.error(error);
+          "$push": {
+            last5: {
+              "$each": [ correct ],
+              "$slice": -5
+            },
+            last10: {
+              "$each": [ correct ],
+              "$slice": -10
+            }
           }
-        });
+        }
+      }).subscribe({
+        next:() =>{
+          console.log("success");
+        },
+        error: (err: any) => {
+          console.log("error", err);
+        }
+      })
+
+
+      this.apiService.post("/action/insertOne", {
+        "collection": "reports",
+        "document": {
+          _id: report.id,
+          date: {
+            "$date" : {"$numberLong": report.date.getTime().toString()}
+          },
+          quizId: report.quizId,
+          fields: report.fields,
+          questions: report.questions
+        }
+      }).subscribe({
+        next: () => {
+          observer.next();
+        },
+        error: (err: any) => {
+          observer.next(err);
+        },
+        complete: () => {
+          observer.complete();
+        }
+      })
     });
   }
 
   public getReports(quizId: string): Observable<QuizPassedReport[]> {
     return new Observable<QuizPassedReport[]>(observer => {
-      this.driveService.getSpreadsheetData(quizId).subscribe({
-        next: (spreadsheetData: SpreadsheetData) => {
-
-          var reports: QuizPassedReport[] = [];
-          spreadsheetData.sheets[1].data.forEach((row: any) => {
-            let report = JSON.parse(row[0]);
-            report.date = new Date(report.date);
-            reports.push(report);
-          });
-
-          observer.next(reports);
-          observer.complete();
+      this.apiService.post("/action/find", {
+        "collection": "reports",
+        "filter": {
+          "quizId": quizId
         },
-        error: (error: any) => {
-          console.log(error);
+        "sort": {
+          "date": 1
         }
-      });
+      }).subscribe({
+        next:(response:any) => {
+          
+      observer.next(response.documents);
+      observer.complete();
+        },
+        error: (err: any) => {
+          observer.next(err);
+        },
+        complete: () => {
+          observer.complete();
+        }
+      })
     });
   }
 
   public updateQuiz(quiz: Quiz): Observable<Quiz> {
-    return new Observable<Quiz>(observer => {
-      this.driveService
-        .getSpreadsheetData(this.mainFile)
-        .subscribe({
-          next: (spreadsheetData: SpreadsheetData) => {
-            for (let row of spreadsheetData.sheets[0].data) {
-              if (row[0] === quiz.id) {
-                row[2] = quiz.name;
-                row[1] = quiz.groups.join("/");
-                row[3] = quiz.fields.length;
-                row[4] = quiz.data.length;
-                break;
-              }
-            }
-
-            this.driveService
-              .updateSpreadsheetWithFileId(this.mainFile, "Quizzes", spreadsheetData.sheets[0].data)
-              .subscribe({
-                next: () => {
-                  this.driveService
-                    .updateSpreadsheetWithFileId(quiz.id, "Questions", this.getDataToSave(quiz))
-                    .subscribe({
-                      next: () => {
-                        observer.next(quiz);
-                        observer.complete();
-                      },
-                      error: (error: any) => {
-                        observer.error(error);
-                      }
-                    });
-                },
-                error: (error: any) => {
-                  observer.error(error);
-                }
-              });
-
-
-          },
-          error: (error: any) => {
-            observer.error(error);
-            console.log(error);
-          }
-        });
-    });
+    return this.createQuiz(quiz);
   }
 
   private getDataToSave(quiz: Quiz): any[][] {
@@ -321,10 +267,14 @@ export class QuizzesService {
   }
 
 
-  private appendToFolder(folder: Folder, data: any[]): void {
+  private appendToFolder(folder: Folder, data: any): void {
     let currentFolder = folder;
-    let groups = data[1].split("/");
+    let groups = data.parentId.split("/");
     for (let i = 0; i < groups.length; i++) {
+      if (groups[i] == "") {
+        continue;
+      }
+
       let subFolder = currentFolder.subFolders.find(f => f.name === groups[i]);
       if (!subFolder) {
         subFolder = new Folder();
@@ -346,25 +296,14 @@ export class QuizzesService {
     }
 
     let info = new QuizInfo();
-    info.id = data[0];
-    info.groups = data[1].split("/");
-    info.name = data[2];
-    info.fields = data[3];
-    info.data = data[4];
-    info.passedCount = data[5];
-
-    let values = [];
-    for (let i = 6; i < 16; i++) {
-      if (data[i] >= 0) {
-        values.push(Number(data[i]));
-      }
-    }
-
-    if (values.length > 0) {
-      info.last10AnswerSuccessRate = values.reduce((acc, cur) => acc + cur, 0) / values.length;
-      let fiveElements = values.slice(0, 5);
-      info.last5AnswerSuccessRate = fiveElements.reduce((acc, cur) => acc + cur, 0) / fiveElements.length;
-    }
+    info.id = data.id;
+    info.groups = data.parentId.split("/");
+    info.name = data.name;
+    info.fields = data.fields;
+    info.data = data.data;
+    info.passedCount = data.passed;
+    info.last10AnswerSuccessRate = data.last10;
+    info.last5AnswerSuccessRate = data.last5;
 
     currentFolder.quizzes.push(info);
 
