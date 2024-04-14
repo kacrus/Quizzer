@@ -49,7 +49,11 @@ class NoReuseStrategy extends BaseRouteReuseStrategy {
   ],
   providers: [
     { provide: RouteReuseStrategy, useClass: NoReuseStrategy },
-   
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    }
   ],
   bootstrap: [AppComponent]
 })

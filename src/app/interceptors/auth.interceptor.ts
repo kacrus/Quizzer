@@ -19,14 +19,7 @@ export class AuthInterceptor implements HttpInterceptor {
   ) {}
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
-    const authReq = request.clone({
-      setHeaders: {
-        Authorization: `Bearer ${this.authTokenService.getAccessToken()}`
-      }
-    });
-    
-    request.headers.append('Authorization', 'Bearer ' + this.authTokenService.getAccessToken());
-    return next.handle(authReq) 
+    return next.handle(request) 
       .pipe(catchError(err => {
         if ([401,   403].indexOf(err.status) !== -1) { 
             sessionStorage.clear();
