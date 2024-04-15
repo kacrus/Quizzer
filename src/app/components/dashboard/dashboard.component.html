@@ -1,11 +1,11 @@
 <div class="container">
     <div class="row justify-content-md-center mt-5" *ngIf="!currentFolder">
-        <div class="col-8 text-center">
+        <div class="col-12 text-center">
             Loading...
         </div>
     </div>
     <div class="row justify-content-md-center mt-5" *ngIf="currentFolder">
-        <div class="col-8 d-flex flex-row-reverse">
+        <div class="col-12 d-flex flex-row-reverse">
             <button class="btn btn-success btn-sm-4-5" (click)="createNewQuizClick()">
                 <i class="bi bi-plus-lg"></i>
             </button>
@@ -25,7 +25,7 @@
     </div>
 
     <div class="row justify-content-md-center" *ngIf="currentFolder">
-        <div class="col-8">
+        <div class="col-12">
             <div *ngIf="currentFolder?.subFolders">
                 <table>
                     <tr class="fit-content">
@@ -36,14 +36,14 @@
                         </td>
                         <td> <i class="bi bi-folder-fill text-warning"></i></td>
                         <td *ngFor="let f of previousFolders">
-                            {{ f.name }} /
+                            <span (click)="backFolderClick(f)"><u>{{ f.name }}</u></span> /
                         </td>
-                        <td>{{currentFolder?.name}}</td>
+                        <td>{{currentFolder.name}}</td>
                     </tr>
                 </table>
 
-                <ul class="list-group mt-3" *ngIf="currentFolder">
-                    <li class="list-group-item" *ngFor="let subFolder of currentFolder.subFolders" (click)="folderClick(subFolder)">
+                <ul class="list-group py-1 mt-3" *ngIf="currentFolder">
+                    <li class="list-group-item list-group-item-action" *ngFor="let subFolder of currentFolder.subFolders" (click)="folderClick(subFolder)">
                         <div>
                             <i class="bi bi-folder-fill text-warning"></i>
                             <span class="ms-1">{{subFolder.name}}</span>
@@ -56,8 +56,8 @@
     </div>
 
     <div class="row justify-content-md-center mt-2" *ngIf="currentFolder?.quizzes?.length">
-        <div class="col-8">
-            <table class="table">
+        <div class="col-12">
+            <table class="table table-sm table-hover">
                 <thead>
                     <tr>
                         <th class="fit-content">#</th>

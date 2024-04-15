@@ -79,6 +79,16 @@ export class DashboardComponent {
     return path;
   }
 
+  protected backFolderClick(f: any) {
+    while(true) {
+      let folder =  this.previousFolders.pop();
+      if(folder == f) {
+        this.currentFolder = folder;
+        break;
+      }
+    }
+  }
+
   protected backClick(): void {
     if (this.previousFolders.length > 0) {
       this.currentFolder = this.previousFolders.pop();

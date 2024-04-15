@@ -28,7 +28,7 @@ export class QuizzesService {
             observer.next({
               id: response.document._id,
               name: response.document.name,
-              groups: response.document.parentId.split("/"),
+              groups: response.document.groups,
               fields: response.document.fields,
               data: response.document.data,
             });
@@ -54,7 +54,7 @@ export class QuizzesService {
         },
         "projection": {
           id: "$_id",
-          parentId: 1,
+          groups: 1,
           name: 1,
           type: 1,
           passed: 1,
@@ -109,7 +109,7 @@ export class QuizzesService {
         },
         "update": {
           "$set": {
-            "parentId": quiz.groups.join("/"),
+            "groups": quiz.groups,
             "name": quiz.name,
             "fields": quiz.fields,
             "data": quiz.data
@@ -269,7 +269,7 @@ export class QuizzesService {
 
   private appendToFolder(folder: Folder, data: any): void {
     let currentFolder = folder;
-    let groups = data.parentId.split("/");
+    let groups = data.groups;
     for (let i = 0; i < groups.length; i++) {
       if (groups[i] == "") {
         continue;
@@ -297,7 +297,7 @@ export class QuizzesService {
 
     let info = new QuizInfo();
     info.id = data.id;
-    info.groups = data.parentId.split("/");
+    info.groups = data.groups;
     info.name = data.name;
     info.fields = data.fields;
     info.data = data.data;
