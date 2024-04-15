@@ -86,6 +86,28 @@ export class QuizComponent {
     });
   }
 
+  protected onKeyDown(event: any) {
+    if (event.altKey && event.keyCode >= 48 && event.keyCode <=57) {
+      let idx = event.keyCode - 48;
+      console.log(event.srcElement.attributes['ng-reflect-name'].value);
+      if(idx < this.specialCharacters.length) {
+        let c = this.specialCharacters[idx];
+        this.insertCustomCharacter(event.srcElement, c);
+      }
+    }
+  }
+
+  private insertCustomCharacter(input: any, character: any) {
+    var start = input.selectionStart;
+    var end = input.selectionEnd;
+    var text = input.value;
+    var newText = text.substring(0, start) + character + text.substring(end);
+    input.value = newText;
+    let control = this.form.get(input.attributes['ng-reflect-name'].value);
+    control?.setValue(newText);
+    input.setSelectionRange(start + 1, start + 1);
+}
+
   protected addSpecialCharacter(c: string) {
     if(this.focusedField) {
       console.log("focused", this.focusedField)
