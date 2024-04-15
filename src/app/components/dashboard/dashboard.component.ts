@@ -174,6 +174,8 @@ export class DashboardComponent {
       let data = reader.result as string;
       let quizzes = this.quizSerializationService.deserialize(data);
 
+      console.log(quizzes);
+
       this.quizService.hasDublicateQuizzes(quizzes).subscribe({
         next: hasDuplicateQuizzes => {
           if (hasDuplicateQuizzes) {

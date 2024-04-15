@@ -31,6 +31,7 @@ export class QuizzesService {
               groups: response.document.groups,
               fields: response.document.fields,
               data: response.document.data,
+              specialCharacters: response.document.specialCharacters
             });
           },
           error: (err: any) => {
@@ -112,7 +113,8 @@ export class QuizzesService {
             "groups": quiz.groups,
             "name": quiz.name,
             "fields": quiz.fields,
-            "data": quiz.data
+            "data": quiz.data,
+            "specialCharacters": quiz.specialCharacters
           }
         }
       }).subscribe({

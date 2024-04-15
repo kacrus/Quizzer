@@ -41,6 +41,7 @@ export class Quiz {
     public id: string;
     public name: string = "";
     public groups: string[] = [];
+    public specialCharacters: string[] = [];
     public fields: Field[] = [];
     public data: any[] = [];
 }

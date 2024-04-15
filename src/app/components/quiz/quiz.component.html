@@ -29,6 +29,21 @@
         </div>
     </div>
 
+    <div class="row justify-content-md-center mt-3" *ngIf="specialCharacters.length">
+        <div class="col-5">
+            <table class="table table-sm">
+                <tr>
+                    <td *ngFor="let specialCharacter of specialCharacters" class="text-center">
+                       <span class="text-white bg-secondary rounded bg-primary-on-hover py-1 px-2" (click)="addSpecialCharacter(specialCharacter)">{{specialCharacter}}</span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+
+    
+
     <div class="row justify-content-md-center mt-3" *ngIf="!showReport">
         
         <div class="col-5">
@@ -41,7 +56,8 @@
                     <input #firstAnswer formControlName="{{field.name}}" type="text" class="form-control form-control-sm" id="field-{{field.name}}" (keydown.enter)="onSubmit()"
                         [class.is-invalid]="field.userValue !== undefined && field.userValue !== field.value"
                         [class.is-valid]="field.userValue !== undefined && field.userValue === field.value" [attr.aria-describedby]="field.name"
-                        placeholder="{{field.name}}">
+                        placeholder="{{field.name}}"
+                        (focus)="onFieldFocus(field)">
                     <div id="{{field.name}}" class="invalid-feedback">
                         Correct answer: {{field.value}}
                     </div>

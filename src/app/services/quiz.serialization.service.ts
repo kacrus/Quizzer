@@ -14,6 +14,7 @@ export class QuizSerializationService {
       id: quiz.id,
       name: quiz.name,
       groups: quiz.groups,
+      specialCharacters: quiz.specialCharacters,
       fields: quiz.fields,
       data: quiz.data
     }
@@ -26,6 +27,7 @@ export class QuizSerializationService {
       return {
         id: quiz.id,
         name: quiz.name,
+        specialCharacters: quiz.specialCharacters,
         groups: quiz.groups,
         fields: quiz.fields,
         data: quiz.data
@@ -44,6 +46,7 @@ export class QuizSerializationService {
           id: item.id ?? uuid(),
           name: item.name,
           groups: item.groups ?? [],
+          specialCharacters: item.specialCharacters ?? [],
           fields: item.fields,
           data: item.data
         } as Quiz
@@ -55,6 +58,7 @@ export class QuizSerializationService {
         name: serItem.name,
         groups: serItem.groups ?? [],
         fields: serItem.fields,
+        specialCharacters: serItem.specialCharacters,
         data: serItem.data
       } as Quiz];
     }
@@ -65,6 +69,7 @@ class SerializeClass {
   public id: string = "";
   public name: string = "";
   public groups: string[] = [];
+  public specialCharacters: string[] = [];
   public fields: Field[] = [];
   public data: any[] = [];
 }

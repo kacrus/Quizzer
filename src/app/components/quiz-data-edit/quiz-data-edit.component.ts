@@ -16,6 +16,7 @@ export class QuizDataEditComponent {
 
   protected quizName: string = "";
   protected quizGroup: string = "";
+  protected specialCharacters: string = "";
   protected columns: Column[] = [];
   protected rows: any[] = [];
 
@@ -25,6 +26,7 @@ export class QuizDataEditComponent {
   ngOnInit(): void {
     this.quizName = this.quiz.name;
     this.quizGroup = this.quiz.groups.join(this.separator);
+    this.specialCharacters = this.quiz.specialCharacters.join(this.separator);
     this.columns = this.quiz.fields.map(f => new Column(f.id, f.name));
     for (let question of this.quiz.data) {
       let row: any = {};
@@ -127,6 +129,13 @@ export class QuizDataEditComponent {
     } else {
       quiz.groups = []; 
     }
+
+    if(this.specialCharacters !== "") {
+      quiz.specialCharacters = this.specialCharacters.split(this.separator);
+    } else {
+      quiz.specialCharacters = [];
+    }
+
     quiz.fields = this.columns.map(c => ({ id: c.id, name: c.name, type: FieldType.Text }));
     quiz.data = rowObjects;
 

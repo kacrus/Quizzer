@@ -21,9 +21,11 @@ export class QuizComponent {
   protected quizGroup: string = "";
   protected currentQuestionIndex: number = 0;
   protected questions: Question[] = [];
+  protected specialCharacters: string[] = [];
   protected shuffleQuestionsValue: boolean = false;
   protected showReport: boolean = false;
   protected showAnswers: boolean = false;
+  protected focusedField: AnswerField | undefined;
 
   @ViewChild('firstAnswer') firstAnswerField: ElementRef | undefined;
 
@@ -75,11 +77,28 @@ export class QuizComponent {
             this.shuffleQuestions();
           }
 
+          this.specialCharacters = quiz.specialCharacters;
+
           this.setQuestion(0);
         },
         error: err => console.error(err)
       });
     });
+  }
+
+  protected addSpecialCharacter(c: string) {
+    if(this.focusedField) {
+      console.log("focused", this.focusedField)
+      let control = this.form.controls[this.focusedField.name];
+      if(control) {
+        console.log("control", control)
+        control.setValue((control.value ?? "") + c);
+      }
+    }
+  }
+
+  protected onFieldFocus(field: AnswerField) {
+    this.focusedField = field;
   }
 
   protected onRestart() {

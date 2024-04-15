@@ -7,9 +7,15 @@
       </td>
     </tr>
     <tr class="no-border">
-      <td class="fit-content align-middle">Quiz group: </td>
+      <td class="fit-content align-middle">Quiz group (separated by /): </td>
       <td>
         <input type="text" class="form-control form-control-sm" [(ngModel)]="quizGroup" [disabled]="isSaving" />
+      </td>
+    </tr>
+    <tr class="no-border">
+      <td class="fit-content align-middle">Special characters (separated by /): </td>
+      <td>
+        <input type="text" class="form-control form-control-sm" [(ngModel)]="specialCharacters" [disabled]="isSaving" />
       </td>
     </tr>
   </tbody>
