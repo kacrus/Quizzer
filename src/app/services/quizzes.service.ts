@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { DriveService, SpreadSheet, SpreadsheetData } from './drive.service';
 import { Observable } from 'rxjs';
 import { Folder, Quiz, QuizInfo, QuizPassedReport } from '../models/quiz';
 import { ApiService } from './api.service';
@@ -8,10 +7,7 @@ import { ApiService } from './api.service';
   providedIn: 'root'
 })
 export class QuizzesService {
-  private readonly mainFile = 'QuizzerHierarchy';
-
   constructor(
-    private driveService: DriveService,
     private apiService: ApiService,
   ) { }
 
@@ -82,20 +78,6 @@ export class QuizzesService {
           console.log(error);
         }
 
-      });
-    });
-  }
-
-  public createMain(): Observable<void> {
-    return new Observable<void>(observer => {
-      this.driveService.createOrGetSpreadsheet(this.mainFile, ["Quizzes"]).subscribe({
-        next: () => {
-          observer.next();
-          observer.complete();
-        },
-        error: (error: any) => {
-          observer.error(error);
-        }
       });
     });
   }
@@ -239,35 +221,6 @@ export class QuizzesService {
   public updateQuiz(quiz: Quiz): Observable<Quiz> {
     return this.createQuiz(quiz);
   }
-
-  private getDataToSave(quiz: Quiz): any[][] {
-    let result: any[][] = [];
-
-    var r1 = ["field_id"];
-    var r2 = ["field_name"];
-    var r3 = ["field_type"];
-
-    r1.push(...quiz.fields.map(field => field.id));
-    r2.push(...quiz.fields.map(field => field.name));
-    r3.push(...quiz.fields.map(field => field.type));
-
-    result.push(r1);
-    result.push(r2);
-    result.push(r3);
-
-    for (let i = 0; i < quiz.data.length; i++) {
-      let row: any[] = [];
-      let data = quiz.data[i];
-
-      row.push(`question-${i + 1}`);
-      row.push(...quiz.fields.map(field => data[field.id]));
-
-      result.push(row);
-    }
-
-    return result;
-  }
-
 
   private appendToFolder(folder: Folder, data: any): void {
     let currentFolder = folder;

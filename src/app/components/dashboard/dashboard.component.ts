@@ -129,6 +129,8 @@ export class DashboardComponent {
   protected downloadQuizes(): void {
     let path = this.getCurrentPath();
     let splitPath = path.split("/");
+
+  
     this.quizService.getQuizzes(splitPath)
       .subscribe({
         next: quizzes => {
