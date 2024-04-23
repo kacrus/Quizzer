@@ -42,15 +42,38 @@
                     </tr>
                 </table>
 
-                <ul class="list-group py-1 mt-3" *ngIf="currentFolder">
-                    <li class="list-group-item list-group-item-action" *ngFor="let subFolder of currentFolder.subFolders" (click)="folderClick(subFolder)">
-                        <div>
-                            <i class="bi bi-folder-fill text-warning"></i>
-                            <span class="ms-1">{{subFolder.name}}</span>
-                        </div>
+                <table class="table table-hover table-bordered rounded-3 mt-3 py-1" *ngIf="currentFolder.subFolders.length">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th class="fit-content">Passed > 0</th>
+                            <th class="fit-content">Passed 0</th>
+                            <th class="fit-content">L5 A %</th>
+                            <th class="fit-content">L5 10 %</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let subFolder of currentFolder.subFolders" (click)="folderClick(subFolder)">
+                            <td>
+                                <i class="bi bi-folder-fill text-warning"></i>
+                                <span class="ms-1">{{subFolder.name}}</span>
+                            </td>
+                            <td class="fit-content text-end">
+                                <span *ngIf="subFolder.stats.passed">{{subFolder.stats.passed}}</span>
+                            </td>
+                            <td class="fit-content text-end">
+                                <span *ngIf="subFolder.stats.noPassedTests">{{subFolder.stats.noPassedTests}}</span>
+                            </td>
+                            <td class="fit-content text-end">
+                                {{subFolder.stats.getLast5Rate()}}
+                            </td>
+                            <td class="fit-content text-end">
+                                {{subFolder.stats.getLast10Rate()}}
+                            </td>
+                        </tr>
+                    </tbody>
 
-                    </li>
-                </ul>
+                </table>
             </div>
         </div>
     </div>

@@ -14,9 +14,9 @@ import { QuizzesService } from 'src/app/services/quizzes.service';
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent {
-  protected rootFolder: Folder | undefined;
-  protected currentFolder: Folder | undefined;
-  protected previousFolders: Folder[] = [];
+  protected rootFolder: FolderStats | undefined;
+  protected currentFolder: FolderStats | undefined;
+  protected previousFolders: FolderStats[] = [];
 
   constructor(
     private toastrService: ToastrService,
@@ -31,12 +31,22 @@ export class DashboardComponent {
     this.activatedRoute.queryParams.subscribe(params => {
       this.quizzesService.getQuizzesStructure()
         .subscribe(folder => {
-          this.rootFolder = folder;
-          this.currentFolder = folder;
+          var f: any = folder;
+
+          this.populateStats(f);
+          this.rootFolder = f;
+          this.currentFolder = f;
 
           let path = params["path"] || "";
           this.openFolder(path);
         });
+    });
+  }
+
+  private populateStats(folder: FolderStats) {
+    folder.stats = this.getStats(folder);
+    folder.subFolders.forEach(sub => {
+      this.populateStats(sub);
     });
   }
 
@@ -80,9 +90,9 @@ export class DashboardComponent {
   }
 
   protected backFolderClick(f: any) {
-    while(true) {
-      let folder =  this.previousFolders.pop();
-      if(folder == f) {
+    while (true) {
+      let folder = this.previousFolders.pop();
+      if (folder == f) {
         this.currentFolder = folder;
         break;
       }
@@ -99,7 +109,7 @@ export class DashboardComponent {
     this.router.navigate(["/quiz/edit", quiz.id]);
   }
 
-  protected folderClick(folder: Folder): void {
+  protected folderClick(folder: FolderStats): void {
     this.previousFolders.push(this.currentFolder!);
     this.currentFolder = folder;
   }
@@ -130,7 +140,7 @@ export class DashboardComponent {
     let path = this.getCurrentPath();
     let splitPath = path.split("/");
 
-  
+
     this.quizService.getQuizzes(splitPath)
       .subscribe({
         next: quizzes => {
@@ -205,7 +215,7 @@ export class DashboardComponent {
               console.error(`Failed to upload quizzes.`, err);
             }
           });
-        
+
         },
         error: (err) => {
           console.error(err);
@@ -216,13 +226,30 @@ export class DashboardComponent {
     reader.readAsText(file);
   }
 
+  private getStats(folder: FolderStats): Stats {
+    let stats = new Stats();
+    folder.subFolders.forEach(subFolder => {
+      let subFolderStats = this.getStats(subFolder);
+      stats.add(subFolderStats);
+    });
+
+    folder.quizzes.forEach(quiz => {
+      stats.apply(quiz);
+    });
+
+    return stats;
+  }
+
   private refreshStructure(): void {
     this.quizzesService.getQuizzesStructure()
       .subscribe(folder => {
         let path = this.getCurrentPath();
 
-        this.rootFolder = folder;
-        this.currentFolder = folder;
+        var f: any = folder;
+
+        this.populateStats(f);
+        this.rootFolder = f;
+        this.currentFolder = f;
 
         this.openFolder(path);
       });
@@ -235,5 +262,58 @@ export class DashboardComponent {
     anchor.download = `${filename}.json`;
     anchor.href = url;
     anchor.click();
+  }
+}
+
+class FolderStats {
+  public name: string = "";
+  public groups: string[] = [];
+  public subFolders: FolderStats[] = [];
+  public quizzes: QuizInfo[] = [];
+  public stats: Stats = new Stats();
+}
+
+class Stats {
+  public passed: number = 0;
+  public noPassedTests: number = 0;
+  public last5SuccessRate: number[] = [];
+  public last10SuccessRate: number[] = [];
+
+  public getLast5Rate() {
+    return this.getRate(this.last5SuccessRate);
+  }
+
+  public getLast10Rate() {
+    return this.getRate(this.last10SuccessRate);
+  }
+
+  private getRate(numbers: number[]) {
+    if (numbers.length == 0) {
+      return "";
+    }
+
+    let v = this.last10SuccessRate.reduce((a, b) => a + b) / this.last10SuccessRate.length * 100;
+    return v.toFixed(1);
+  }
+
+  public add(stats: Stats) {
+    this.passed += stats.passed;
+    this.noPassedTests += stats.noPassedTests;
+    this.last5SuccessRate.push(...stats.last5SuccessRate);
+    this.last10SuccessRate.push(...stats.last10SuccessRate);
+  }
+
+  public apply(quiz: QuizInfo) {
+    this.passed += quiz.passedCount ?? 0;
+    if(!quiz.passedCount) {
+      this.noPassedTests++;
+    }
+    if (quiz.last5AnswerSuccessRate) {
+      this.last5SuccessRate.push(quiz.last5AnswerSuccessRate);
+    }
+
+    if (quiz.last10AnswerSuccessRate) {
+      this.last10SuccessRate.push(quiz.last10AnswerSuccessRate);
+    }
   }
 }
