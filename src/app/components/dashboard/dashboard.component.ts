@@ -226,6 +226,19 @@ export class DashboardComponent {
     reader.readAsText(file);
   }
 
+  protected getViewName(name: string): string {
+    let match = name.match(/^\d+\./);
+    if (match) {
+      return name.substring(match[0].length);
+    }
+
+    return name;
+  }
+
+  protected getViewIndex(name: string, index: number): string {
+    return index.toString();
+  }
+
   private getStats(folder: FolderStats): Stats {
     let stats = new Stats();
     folder.subFolders.forEach(subFolder => {

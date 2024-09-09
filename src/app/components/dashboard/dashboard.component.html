@@ -96,8 +96,8 @@
 
                 <tbody>
                     <tr *ngFor="let quiz of currentFolder!.quizzes; let i = index">
-                        <td class="fit-content">{{i + 1}}</td>
-                        <td>{{quiz.name}}</td>
+                        <td class="fit-content">{{getViewIndex(quiz.name, i + 1)}}</td>
+                        <td>{{getViewName(quiz.name)}}</td>
                         <td class="fit-content">{{quiz.passedCount}}</td>
 
                         <td class="fit-content" *ngIf="quiz.last5AnswerSuccessRate">{{quiz.last5AnswerSuccessRate |percent:'1.2-2' }}</td>
