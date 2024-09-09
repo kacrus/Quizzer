@@ -26,6 +26,7 @@ export class QuizComponent {
   protected showReport: boolean = false;
   protected showAnswers: boolean = false;
   protected focusedField: AnswerField | undefined;
+  protected specialCharacterGroups: string[][] = [];
 
   @ViewChild('firstAnswer') firstAnswerField: ElementRef | undefined;
 
@@ -78,6 +79,9 @@ export class QuizComponent {
           }
 
           this.specialCharacters = quiz.specialCharacters;
+          this.specialCharacterGroups = this.getSpecialCharacterGroups(quiz.specialCharacters);
+
+          console.log(this.specialCharacterGroups);
 
           this.setQuestion(0);
         },
@@ -239,6 +243,16 @@ export class QuizComponent {
     }
 
     return counter;
+  }
+
+  protected getSpecialCharacterGroups(specialCharacters: string[]) {
+    // slice in groups of 14
+    let groups = [];
+    for (let i = 0; i < specialCharacters.length; i += 10) {
+      groups.push(specialCharacters.slice(i, i + 10));
+    }
+
+    return groups;
   }
 
   private setQuestion(idx: number) {

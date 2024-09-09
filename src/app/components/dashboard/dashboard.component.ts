@@ -292,7 +292,7 @@ class Stats {
       return "";
     }
 
-    let v = this.last10SuccessRate.reduce((a, b) => a + b) / this.last10SuccessRate.length * 100;
+    let v = numbers.reduce((a, b) => a + b) / numbers.length * 100;
     return v.toFixed(1);
   }
 
@@ -308,6 +308,7 @@ class Stats {
     if(!quiz.passedCount) {
       this.noPassedTests++;
     }
+
     if (quiz.last5AnswerSuccessRate) {
       this.last5SuccessRate.push(quiz.last5AnswerSuccessRate);
     }

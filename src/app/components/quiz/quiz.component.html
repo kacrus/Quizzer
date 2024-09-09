@@ -32,13 +32,8 @@
     <div class="row justify-content-md-center mt-3" *ngIf="specialCharacters.length">
         <div class="col-5">
             <table class="table table-sm">
-                <tr>
-                    <td *ngFor="let specialCharacter of specialCharacters; let i = index;" class="text-center">
-                        {{i}}
-                    </td>
-                </tr>
-                <tr>
-                    <td *ngFor="let specialCharacter of specialCharacters" class="text-center">
+                <tr *ngFor="let group of specialCharacterGroups" class="">
+                    <td *ngFor="let specialCharacter of group" class="text-center pb-2">
                        <span class="text-white bg-secondary rounded bg-primary-on-hover py-1 px-2" (click)="addSpecialCharacter(specialCharacter)">{{specialCharacter}}</span>
                     </td>
                 </tr>
