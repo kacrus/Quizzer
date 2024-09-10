@@ -14,6 +14,7 @@ import { LoginService } from 'src/app/services/login.service';
 })
 export class LoginComponent {
   protected loginEndpointURL: string = "";
+  protected refreshEndpointURL: string = "";
   protected apiEndpointURL: string = "";
   protected email: string = "";
   protected password: string = "";
@@ -38,6 +39,10 @@ export class LoginComponent {
       this.loginEndpointURL = authData.loginEndpointUrl;
     }
 
+    if(authData.refreshEndpointUrl) {
+      this.refreshEndpointURL = authData.refreshEndpointUrl;
+    }
+
     if(authData.dataSource) {
       this.dataSource = authData.dataSource;
     }
@@ -57,6 +62,7 @@ export class LoginComponent {
             accessToken: result.access_token,
             email: result.email,
             loginEndpointUrl: this.loginEndpointURL,
+            refreshEndpointUrl: this.refreshEndpointURL,
             apiEndpointUrl: this.apiEndpointURL,
             database: this.database,
             dataSource: this.dataSource

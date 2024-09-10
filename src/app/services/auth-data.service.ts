@@ -9,6 +9,7 @@ export class AuthDataService {
   readonly refreshTokenKey = "refresh-token";
   readonly emailKey = "email";
   readonly loginEndpointURLKey = "login-endpoint-url";
+  readonly refreshEndpointURLKey = "refresh-endpoint-url";
   readonly apiEndpointURLKey = "api-endpoint-url";
   readonly databaseKey = "database";
   readonly dataSourceKey = "dataSource";
@@ -21,6 +22,7 @@ export class AuthDataService {
     sessionStorage.setItem(this.emailKey, data.email?? "");
 
     localStorage.setItem(this.loginEndpointURLKey, data.loginEndpointUrl?? "");
+    localStorage.setItem(this.refreshEndpointURLKey, data.refreshEndpointUrl?? "");
     localStorage.setItem(this.apiEndpointURLKey, data.apiEndpointUrl?? "");
     localStorage.setItem(this.databaseKey, data.database ?? "");
     localStorage.setItem(this.dataSourceKey, data.dataSource ?? "");
@@ -33,6 +35,7 @@ export class AuthDataService {
       email: sessionStorage.getItem(this.emailKey),
 
       loginEndpointUrl: localStorage.getItem(this.loginEndpointURLKey),
+      refreshEndpointUrl: localStorage.getItem(this.refreshEndpointURLKey),
       apiEndpointUrl: localStorage.getItem(this.apiEndpointURLKey),
       database: localStorage.getItem(this.databaseKey),
       dataSource: localStorage.getItem(this.dataSourceKey)
