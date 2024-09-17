@@ -96,7 +96,7 @@
 
                 <tbody>
                     <tr *ngFor="let quiz of currentFolder!.quizzes; let i = index">
-                        <td class="fit-content">{{getViewIndex(quiz.name, i + 1)}}</td>
+                        <td class="fit-content text-end">{{getViewIndex(quiz.name, i + 1)}}.</td>
                         <td>{{getViewName(quiz.name)}}</td>
                         <td class="fit-content">{{quiz.passedCount}}</td>
 
